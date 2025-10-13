@@ -48,9 +48,16 @@ Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->n
 Route::post('/mahasiswa/upload', [MahasiswaController::class, 'storeUpload'])->name('mahasiswa.storeUpload');
 
 // ===============================
-// 🏠 DASHBOARD DOSEN
+// 📊 DASHBOARD DOSEN
 // ===============================
 Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
+
+// ===============================
+// 📁 MENU UTAMA (klik dari dashboard dosen)
+// ===============================
+Route::get('/dosen/penelitian', [PenelitianController::class, 'index'])->name('dosen.penelitian');
+Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('dosen.pengabdian');
+Route::get('/dosen/prestasi', [PrestasiController::class, 'index'])->name('dosen.prestasi');
 
 // ===============================
 // 👨‍🏫 CRUD DOSEN

@@ -10,37 +10,45 @@ use Illuminate\Http\Request;
 
 class DosenController extends Controller
 {
-    // ✅ Dashboard Dosen
+    /**
+     * 🏠 Dashboard Dosen
+     */
     public function dashboard()
     {
-        // Misal ambil data dosen yang sedang login
-        // (sementara contoh ini statis, nanti bisa diganti Auth::guard('dosen')->user())
-        $namaDosen = 'Dosen Aktif'; 
+        // Contoh statis (bisa diganti dengan Auth::guard('dosen')->user() nanti)
+        $namaDosen = 'Dosen Aktif';
 
-        // Hitung jumlah data terkait
         $data = [
             'nama' => $namaDosen,
             'penelitian' => Penelitian::count(),
             'pengabdian' => Pengabdian::count(),
             'prestasi' => Prestasi::count(),
-            'publikasi' => 0, // nanti bisa ditambah tabel publikasi kalau ada
+            'publikasi' => 0, // bisa ditambah nanti
         ];
 
         return view('dosen.dashboard', compact('data'));
     }
 
-    // ✅ CRUD DOSEN
+    /**
+     * 📋 Tampilkan semua data dosen
+     */
     public function index()
     {
         $dosens = Dosen::all();
         return view('dosen.index', compact('dosens'));
     }
 
+    /**
+     * ➕ Form tambah dosen baru
+     */
     public function create()
     {
         return view('dosen.create');
     }
 
+    /**
+     * 💾 Simpan data dosen baru
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -59,14 +67,20 @@ class DosenController extends Controller
             'password' => bcrypt('12345678'),
         ]);
 
-        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil ditambahkan!');
+        return redirect()->route('dosen.index')->with('success', '✅ Data dosen berhasil ditambahkan!');
     }
 
+    /**
+     * ✏️ Form edit data dosen
+     */
     public function edit(Dosen $dosen)
     {
         return view('dosen.edit', compact('dosen'));
     }
 
+    /**
+     * 🔄 Update data dosen
+     */
     public function update(Request $request, Dosen $dosen)
     {
         $validated = $request->validate([
@@ -81,12 +95,15 @@ class DosenController extends Controller
 
         $dosen->update($validated);
 
-        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil diperbarui!');
+        return redirect()->route('dosen.index')->with('success', '✅ Data dosen berhasil diperbarui!');
     }
 
+    /**
+     * 🗑️ Hapus data dosen
+     */
     public function destroy(Dosen $dosen)
     {
         $dosen->delete();
-        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil dihapus!');
+        return redirect()->route('dosen.index')->with('success', '🗑️ Data dosen berhasil dihapus!');
     }
 }
