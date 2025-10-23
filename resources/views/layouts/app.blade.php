@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SIP2D - Admin')</title>
+    <title>@yield('title', 'SIP3D - Admin')</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +29,7 @@
                 <div class="bg-white text-indigo-600 px-3 py-1 rounded-md font-bold shadow">
                     <i class="fa-solid fa-book"></i>
                 </div>
-                <h1 class="text-xl font-semibold tracking-wide">SIP2D</h1>
+                <h1 class="text-xl font-semibold tracking-wide">SIP3D</h1>
             </div>
 
             <!-- Menu -->
@@ -59,7 +59,7 @@
 
     <!-- ⚙️ FOOTER -->
     <footer class="bg-white border-t mt-16 py-6 text-center text-gray-500 text-sm">
-        &copy; {{ date('Y') }} <strong>SIP2D</strong> |
+        &copy; {{ date('Y') }} <strong>SIP3D</strong> |
         Sistem Informasi Penelitian & Pengabdian kepada Masyarakat
     </footer>
 
