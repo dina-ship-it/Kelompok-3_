@@ -9,7 +9,7 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-2">
             <h1 class="text-3xl font-extrabold text-gray-800">
-                SIP2D - Dashboard Mahasiswa
+                SIP3D - Dashboard Mahasiswa
             </h1>
 
             {{-- Tombol Kembali sejajar dengan judul --}}
