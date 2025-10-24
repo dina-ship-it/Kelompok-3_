@@ -6,17 +6,30 @@
 
         {{-- Judul Halaman --}}
         <div class="flex justify-between items-center">
+            {{-- Judul --}}
             <h1 class="text-3xl font-bold text-gray-800">Administrator Dashboard</h1>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-sm">
-                    Logout
+
+            {{-- Tombol Aksi: Kembali + Logout --}}
+            <div class="flex items-center space-x-3">
+                {{-- Tombol Kembali --}}
+                <button type="button"
+                    onclick="history.back()"
+                    class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm transition">
+                    Kembali
                 </button>
-            </form>
+
+                {{-- Tombol Logout --}}
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-sm">
+                        Logout
+                    </button>
+                </form>
+            </div>
         </div>
 
         {{-- Statistik Utama --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
             <div class="bg-white rounded-2xl shadow p-6 text-center border-t-4 border-blue-500">
                 <p class="text-4xl font-bold text-blue-600">45</p>
                 <p class="text-gray-600">Total Dosen</p>
@@ -34,7 +47,7 @@
         </div>
 
         {{-- Menu Kelola --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             @php
                 $menus = [
                     [
