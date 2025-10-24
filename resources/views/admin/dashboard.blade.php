@@ -7,7 +7,7 @@
         {{-- Judul Halaman --}}
         <div class="flex justify-between items-center">
             {{-- Judul --}}
-            <h1 class="text-3xl font-bold text-gray-800">Administrator Dashboard</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
 
             {{-- Tombol Aksi: Kembali + Logout --}}
             <div class="flex items-center space-x-3">
