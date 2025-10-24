@@ -7,7 +7,19 @@
     <div class="max-w-7xl mx-auto">
 
         <!-- Header -->
-        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">SIP2D - Dashboard Mahasiswa</h1>
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-3xl font-extrabold text-gray-800">
+                SIP2D - Dashboard Mahasiswa
+            </h1>
+
+            {{-- Tombol Kembali sejajar dengan judul --}}
+            <button type="button"
+                onclick="history.back()"
+                class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm transition">
+                Kembali
+            </button>
+        </div>
+
         <p class="text-gray-500 text-lg mb-12">
             Upload dokumentasi foto dan video penelitian serta pengabdian masyarakat
         </p>

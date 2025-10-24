@@ -5,8 +5,15 @@
 @section('content')
 <div class="bg-white rounded-2xl shadow p-8">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-semibold text-gray-800">SIP3D - Dashboard Dosen</h1>
+
+        {{-- Tombol Kembali sejajar dengan judul --}}
+        <button type="button"
+            onclick="history.back()"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm transition">
+            Kembali
+        </button>
     </div>
 
     <!-- Welcome Section -->
