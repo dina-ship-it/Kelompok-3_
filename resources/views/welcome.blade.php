@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIP2D - Sistem Informasi</title>
+    <title>SIP3D - Sistem Informasi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -36,7 +36,7 @@
 </head>
 <body>
     <div>
-        <h1 class="title mb-3">SIP2D</h1>
+        <h1 class="title mb-3">SIP3D</h1>
         <p class="desc">Sistem Informasi Pengabdian, Penelitian, dan Prestasi Dosen</p>
         <a href="{{ route('login.pilih') }}" class="btn btn-primary">Masuk ke Sistem</a>
     </div>
