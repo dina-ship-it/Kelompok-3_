@@ -8,6 +8,7 @@ use App\Http\Controllers\PenelitianController;
 use App\Http\Controllers\PengabdianController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\DashboardController; // ✅ ini penting, tambahin yaa sayang 💙
 
 // ===============================
 // 🌐 HALAMAN AWAL
@@ -121,10 +122,7 @@ Route::resource('mahasiswa', MahasiswaController::class)->names([
 // ===============================
 // 🧑‍💼 DASHBOARD ADMIN
 // ===============================
-// 🚫 Tanpa middleware auth
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
 // ===============================
 // 🚪 LOGOUT
