@@ -24,16 +24,23 @@
     <!-- 🔵 NAVBAR -->
     <nav class="bg-indigo-600 shadow text-white">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Logo -->
-            <div class="flex items-center space-x-2">
-                <div class="bg-white text-indigo-600 px-3 py-1 rounded-md font-bold shadow">
-                    <i class="fa-solid fa-book"></i>
+
+            <!-- 🔹 Logo + Tulisan -->
+            <div class="flex items-center space-x-3">
+                <!-- 🏫 Logo Politala -->
+                <img src="{{ asset('images/logo-politala.png') }}" 
+                     alt="Logo Politeknik Negeri Tanah Laut" 
+                     class="h-12 w-12 rounded-full bg-white p-1 shadow-md">
+
+                <!-- 🧾 Tulisan Dua Baris -->
+                <div class="flex flex-col leading-tight">
+                    <span class="text-xl font-bold tracking-wide">SIP3D</span>
+                    <span class="text-sm font-medium text-gray-200 uppercase">Politeknik Negeri Tanah Laut</span>
                 </div>
-                <h1 class="text-xl font-semibold tracking-wide">SIP3D</h1>
             </div>
 
-            <!-- Menu -->
-            <div class="flex items-center space-x-8 text-base">
+            <!-- 🔹 Menu Navigasi -->
+            <div class="flex items-center space-x-8 text-base font-medium">
                 <a href="/" class="hover:underline">Home</a>
                 <a href="{{ route('mahasiswa.dashboard') }}" class="hover:underline">Mahasiswa</a>
                 <a href="{{ route('dosen.index') }}" class="hover:underline">Dosen</a>
@@ -59,8 +66,9 @@
 
     <!-- ⚙️ FOOTER -->
     <footer class="bg-white border-t mt-16 py-6 text-center text-gray-500 text-sm">
-        &copy; {{ date('Y') }} <strong>SIP3D</strong> |
-        Sistem Informasi Penelitian & Pengabdian kepada Masyarakat
+        &copy; {{ date('Y') }} 
+        <strong>SIP3D</strong> | Sistem Informasi Penelitian & Pengabdian kepada Masyarakat<br>
+        <span class="text-gray-400">Politeknik Negeri Tanah Laut</span>
     </footer>
 
 </body>
