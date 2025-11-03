@@ -3,107 +3,79 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dosen;
-use App\Models\Penelitian;
-use App\Models\Pengabdian;
-use App\Models\Prestasi;
 use Illuminate\Http\Request;
 
 class DosenController extends Controller
 {
-    /**
-     * 🏠 Dashboard Dosen
-     */
+    // DASHBOARD
     public function dashboard()
     {
-        // Contoh statis (bisa diganti dengan Auth::guard('dosen')->user() nanti)
-        $namaDosen = 'Dosen Aktif';
-
-        $data = [
-            'nama' => $namaDosen,
-            'penelitian' => Penelitian::count(),
-            'pengabdian' => Pengabdian::count(),
-            'prestasi' => Prestasi::count(),
-            'publikasi' => 0, // bisa ditambah nanti
-        ];
-
-        return view('dosen.dashboard', compact('data'));
+        $dosens = Dosen::all(); // ambil semua data dosen
+        return view('dosen.dashboard', compact('dosens'));
     }
 
-    /**
-     * 📋 Tampilkan semua data dosen
-     */
+    // TAMPILKAN SEMUA DATA
     public function index()
     {
-        $dosens = Dosen::all();
-        return view('dosen.index', compact('dosens'));
+        $dosen = Dosen::all();
+        return view('dosen.index', compact('dosen'));
     }
 
-    /**
-     * ➕ Form tambah dosen baru
-     */
+    // FORM TAMBAH DATA
     public function create()
     {
-        return view('dosen.create');
+        $dosen = new Dosen();
+        $button = 'Simpan';
+        return view('dosen.create', compact('dosen', 'button'));
     }
 
-    /**
-     * 💾 Simpan data dosen baru
-     */
+    // SIMPAN DATA BARU
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nidn' => 'required|numeric|unique:dosens,nidn',
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:dosens,email',
-            'fakultas' => 'required|string|max:255',
-            'prodi' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'tahun' => 'required|numeric|min:2000|max:' . date('Y'),
+        $request->validate([
+            'nidn' => 'required|unique:dosens',
+            'nama' => 'required',
+            'email' => 'required|email|unique:dosens',
+            'fakultas' => 'required',
+            'prodi' => 'required',
+            'jabatan' => 'required',
+            'tahun' => 'required',
+            'status' => 'required',
         ]);
 
-        Dosen::create([
-            ...$validated,
-            'status' => 'Aktif',
-            'password' => bcrypt('12345678'),
-        ]);
-
-        return redirect()->route('dosen.index')->with('success', '✅ Data dosen berhasil ditambahkan!');
+        Dosen::create($request->all());
+        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil ditambahkan.');
     }
 
-    /**
-     * ✏️ Form edit data dosen
-     */
+    // FORM EDIT
     public function edit(Dosen $dosen)
     {
-        return view('dosen.edit', compact('dosen'));
+        $button = 'Update';
+        return view('dosen.edit', compact('dosen', 'button'));
     }
 
-    /**
-     * 🔄 Update data dosen
-     */
+    // UPDATE DATA
     public function update(Request $request, Dosen $dosen)
     {
-        $validated = $request->validate([
-            'nidn' => 'required|numeric|unique:dosens,nidn,' . $dosen->id,
-            'nama' => 'required|string|max:255',
+        $request->validate([
+            'nidn' => 'required|unique:dosens,nidn,' . $dosen->id,
+            'nama' => 'required',
             'email' => 'required|email|unique:dosens,email,' . $dosen->id,
-            'fakultas' => 'required|string|max:255',
-            'prodi' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'tahun' => 'required|numeric|min:2000|max:' . date('Y'),
+            'fakultas' => 'required',
+            'prodi' => 'required',
+            'jabatan' => 'required',
+            'tahun' => 'required',
+            'status' => 'required',
         ]);
 
-        $dosen->update($validated);
-
-        return redirect()->route('dosen.index')->with('success', '✅ Data dosen berhasil diperbarui!');
+        $dosen->update($request->all());
+        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil diperbarui.');
     }
 
-    /**
-     * 🗑️ Hapus data dosen
-     */
+    // HAPUS DATA
     public function destroy(Dosen $dosen)
     {
         $dosen->delete();
-        return redirect()->route('dosen.index')->with('success', '🗑️ Data dosen berhasil dihapus!');
+        return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil dihapus.');
     }
 }

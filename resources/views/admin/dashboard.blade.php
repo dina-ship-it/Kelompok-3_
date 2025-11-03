@@ -3,195 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIP3D - Admin Dashboard</title>
+  <title>SIP3D - Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
     * { font-family: 'Poppins', sans-serif; }
 
     body {
-      background-color: #f4f6fb;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+      background-color: #f9fafb;
     }
 
     /* Navbar */
-    nav {
-      background: linear-gradient(90deg, #3b82f6, #6366f1);
-      color: white;
-      padding: 15px 30px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .navbar-custom {
+      background-color: #4f46e5;
+      padding: 10px 40px;
     }
-
-    nav .brand {
+    .navbar-custom .navbar-brand {
+      color: #fff;
       font-weight: 700;
       font-size: 20px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 25px;
-      margin: 0;
-    }
-
-    nav ul li a {
-      color: white;
-      text-decoration: none;
+    .navbar-custom .nav-link {
+      color: #fff !important;
       font-weight: 500;
       transition: 0.3s;
     }
-
-    nav ul li a:hover { opacity: 0.85; }
-
-    /* Container */
-    .container {
-      margin-top: 50px;
-      animation: fadeIn 1s ease-in;
+    .navbar-custom .nav-link:hover {
+      opacity: 0.85;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .dashboard-title {
-      font-weight: 700;
-      color: #1e3a8a;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-
-    /* Card utama */
-    .stat-card {
-      border: none;
-      border-radius: 15px;
-      background: white;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    .logout-link {
+      color: #fff;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
       transition: 0.3s;
-      padding: 25px;
+    }
+    .logout-link:hover {
+      opacity: 0.85;
     }
 
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    }
-
-    .stat-number {
-      font-size: 2.5rem;
-      font-weight: 700;
-      animation: pop 0.5s ease;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.8); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .stat-label {
-      font-size: 1rem;
-      color: #64748b;
-    }
-
-    /* Tombol */
-    .btn-manage {
-      border: none;
-      border-radius: 8px;
-      padding: 10px 25px;
-      font-weight: 600;
-      color: white;
-      transition: 0.3s;
-      margin-top: 15px;
-    }
-
-    .btn-blue { background: #3b82f6; }
-    .btn-yellow { background: #facc15; color: #1e293b; }
-    .btn-red { background: #ef4444; }
-    .btn-gray { background: #475569; }
-
-    .btn-manage:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 25px 0;
-      color: #64748b;
-      font-size: 14px;
+    /* Dashboard */
+    .dashboard-section {
       margin-top: 40px;
     }
+
+    .stat-box {
+      background-color: #fff;
+      border-radius: 10px;
+      text-align: center;
+      padding: 20px 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .btn-manage {
+      font-weight: 600;
+      color: #fff;
+      border: none;
+      padding: 8px 0;
+      border-radius: 8px;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      transition: 0.3s;
+    }
+    .btn-blue { background-color: #3b82f6; }
+    .btn-green { background-color: #10b981; }
+    .btn-gray { background-color: #6b7280; }
+    .btn-yellow { background-color: #facc15; color: #1e293b; }
+    .btn-red { background-color: #ef4444; }
+    .btn-manage:hover { opacity: 0.9; transform: scale(1.02); }
+
   </style>
 </head>
 <body>
 
   <!-- Navbar -->
-  <nav>
-    <div class="brand">
-      <img src="/images/logo-politala.png" alt="Logo" style="width:35px;">
-      SIP3D Admin Panel
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="/images/logo-politala.png" alt="Logo" width="28"> SIP3D
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav align-items-center">
+          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Mahasiswa</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Dosen</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Admin</a></li>
+          <li class="nav-item ms-2">
+            <a href="#" class="logout-link">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
-    <ul>
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Lecturer</a></li>
-      <li><a href="#">Student</a></li>
-      <li><a href="#">Admin</a></li>
-      <li><a href="#">Logout</a></li>
-    </ul>
   </nav>
 
-  <div class="container">
-    <h2 class="dashboard-title">Admin Dashboard</h2>
+  <!-- Dashboard -->
+  <div class="container dashboard-section">
+    <h4 class="fw-bold mb-4">Administrator Dashboard</h4>
 
-    <div class="row g-4">
-      <!-- Statistik dinamis -->
-      <div class="col-md-4">
-        <div class="stat-card text-center border-top border-primary">
-          <div class="stat-number text-primary">{{ $data['lecturers'] }}</div>
-          <div class="stat-label">Total Lecturers</div>
-          <button class="btn-manage btn-blue">Manage Lecturers</button>
+    <!-- Baris atas -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="stat-box border-primary">
+          <div class="stat-number text-primary">{{ $data['lecturers'] ?? 45 }}</div>
+          <div>Total Dosen</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-box border-success">
+          <div class="stat-number text-success">{{ $data['students'] ?? 1250 }}</div>
+          <div>Total Mahasiswa</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-box border-warning">
+          <div class="stat-number text-warning">{{ $data['research'] ?? 78 }}</div>
+          <div>Total Penelitian</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-box border-danger">
+          <div class="stat-number text-danger">{{ $data['service'] ?? 32 }}</div>
+          <div>Total Pengabdian</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baris bawah -->
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="stat-box">
+          <h6>Kelola Dosen</h6>
+          <small>Tambah, edit, dan hapus data dosen</small>
+          <a href="{{ route('dosen.index') }}" class="btn-manage btn-blue mt-2">Kelola</a>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="stat-card text-center border-top border-warning">
-          <div class="stat-number text-warning">{{ $data['research'] }}</div>
-          <div class="stat-label">Total Research</div>
-          <button class="btn-manage btn-gray">Manage Research</button>
+      <div class="col-md-3">
+        <div class="stat-box">
+          <h6>Kelola Mahasiswa</h6>
+          <small>Tambah, edit, dan hapus data mahasiswa</small>
+          <a href="{{ route('mahasiswa.index') }}" class="btn-manage btn-green mt-2">Kelola</a>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="stat-card text-center border-top border-danger">
-          <div class="stat-number text-danger">{{ $data['service'] }}</div>
-          <div class="stat-label">Total Devotion</div>
-          <button class="btn-manage btn-yellow">Manage Devotion</button>
+      <div class="col-md-3">
+        <div class="stat-box">
+          <h6>Kelola Penelitian</h6>
+          <small>Monitor dan kelola data penelitian</small>
+          <a href="{{ route('penelitian.index') }}" class="btn-manage btn-gray mt-2">Kelola</a>
         </div>
       </div>
 
-      <div class="col-md-12 mt-4">
-        <div class="stat-card text-center border-top border-indigo">
-          <h5 class="mb-2">Manage Achievements</h5>
-          <div class="stat-number text-indigo">{{ $data['achievement'] }}</div>
-          <p>Monitor and manage performance data</p>
-          <button class="btn-manage btn-red">Manage Achievements</button>
+      <div class="col-md-3">
+        <div class="stat-box">
+          <h6>Kelola Pengabdian</h6>
+          <small>Monitor dan kelola data pengabdian</small>
+          <a href="{{ route('pengabdian.index') }}" class="btn-manage btn-yellow mt-2">Kelola</a>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="stat-box">
+          <h6>Kelola Prestasi</h6>
+          <small>Monitor dan kelola data prestasi</small>
+          <a href="{{ route('prestasi.index') }}" class="btn-manage btn-red mt-2">Kelola</a>
         </div>
       </div>
     </div>
   </div>
 
-  <footer>
-    &copy; 2025 SIP3D | Tanah Laut State Polytechnic
-  </footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

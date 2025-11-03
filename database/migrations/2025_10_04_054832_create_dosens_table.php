@@ -7,24 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up(): void
-    {
-        Schema::create('dosens', function (Blueprint $table) {
-            $table->id();
-            $table->string('nidn')->unique();
-            $table->string('nama');
-            $table->string('email')->unique();
-            $table->string('fakultas');
-            $table->string('prodi');
-            $table->string('jabatan');
-            $table->enum('status', ['Aktif', 'Tidak Aktif'])->default('Aktif');
-            $table->string('password')->default(bcrypt('12345678')); // ✅ Tambahkan ini
-            $table->year('tahun')->nullable();
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('dosens', function (Blueprint $table) {
+        $table->id();
+        $table->string('nidn')->unique();
+        $table->string('nama');
+        $table->string('email')->unique();
+        $table->string('fakultas');
+        $table->string('prodi');
+        $table->string('jabatan');
+        $table->year('tahun');
+        $table->enum('status', ['Aktif', 'Nonaktif'])->default('Aktif');
+        $table->timestamps();
+    });
+}
 
-    public function down(): void
-    {
-        Schema::dropIfExists('dosens');
-    }
 };

@@ -208,7 +208,7 @@
     <!-- Baris 1: Logo Politala + Teks panjang satu baris -->
     <div class="logo-row">
       <img src="/images/logo-politala.png" alt="Logo Politala" class="logo">
-      <span class="main-text">Tanah Laut State Polytechnic of Information Technology</span>
+      <span class="main-text">Politeknik Negeri Tanah Laut Teknologi Informasi</span>
     </div>
 
     <!-- Baris 2: Logo TI + Teks "Teknologi Informasi" -->
@@ -220,12 +220,12 @@
 
   <div class="container-main">
     <h1 class="title">SIP3D</h1>
-    <p class="desc">Information System for Lecturer Community Service, Research, and Achievements</p>
-    <a href="{{ route('login.pilih') }}" class="btn btn-glow">Login to the System</a>
+    <p class="desc">Sistem Informasi Pengabdian Masyarakat, Penelitian, dan Prestasi Dosen</p>
+    <a href="{{ route('login.pilih') }}" class="btn btn-glow">Masuk ke Sistem</a>
   </div>
 
   <footer>
-    © 2025 SIP3D | Lecturer Information System - Politala
+    © 2025 SIP3D | Sistem Informasi Dosen - Politala
   </footer>
 </body>
 </html>
