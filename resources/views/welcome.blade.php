@@ -17,7 +17,7 @@
 
     body {
       height: 100vh;
-      background: url('/images/politala.jpg') center/cover no-repeat fixed;
+      background: url('{{ asset('images/politala.jpg') }}') center/cover no-repeat fixed;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -51,7 +51,6 @@
       100% { transform: translate(80px, 60px) scale(1.2); }
     }
 
-    /* === HEADER ATAS KIRI === */
     .header-top-left {
       position: fixed;
       top: 20px;
@@ -66,7 +65,7 @@
     .logo-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
 
     .logo {
@@ -77,21 +76,12 @@
       filter: drop-shadow(0 0 8px rgba(0,0,0,0.25));
     }
 
-    .main-text {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(0,0,0,0.6);
-      line-height: 1.2;
+    .logo-ti,
+    .logo-sip3d {
+      width: 75px;
+      height: 75px;
     }
 
-    .sub-text {
-      font-size: 0.85rem;
-      color: #e0e7ff;
-      font-weight: 400;
-    }
-
-    /* === UTAMA === */
     .container-main {
       position: relative;
       z-index: 2;
@@ -128,19 +118,6 @@
       width: 80%;
       color: #ffffff;
       text-shadow: 0 0 10px rgba(79,70,229,0.6), 0 0 25px rgba(6,182,212,0.4);
-      animation: typing 4s steps(60) 1s forwards, blink 0.75s step-end infinite;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 3px solid rgba(255,255,255,0.6);
-    }
-
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; border-right: none; }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent; }
     }
 
     .btn-glow {
@@ -161,16 +138,14 @@
     }
 
     footer {
-      position: absolute;
-      bottom: 15px;
+      position: fixed;
+      bottom: 10px;
       width: 100%;
       text-align: center;
+      color: white;
       font-size: 0.9rem;
-      color: #f1f5f9;
-      text-shadow: 0 0 10px rgba(0,0,0,0.4);
-      z-index: 2;
-      opacity: 0;
-      animation: fadeIn 3s 2s forwards;
+      z-index: 10;
+      text-shadow: 0 0 8px rgba(0,0,0,0.4);
     }
 
     @media (max-width: 768px) {
@@ -184,8 +159,10 @@
         height: 45px;
       }
 
-      .main-text {
-        font-size: 0.9rem;
+      .logo-ti,
+      .logo-sip3d {
+        width: 60px;
+        height: 60px;
       }
 
       .title {
@@ -203,18 +180,11 @@
   <div class="overlay"></div>
   <div class="glow"></div>
 
-  <!-- === HEADER LOGO KIRI ATAS === -->
   <div class="header-top-left">
-    <!-- Baris 1: Logo Politala + Teks panjang satu baris -->
     <div class="logo-row">
-      <img src="/images/logo-politala.png" alt="Logo Politala" class="logo">
-      <span class="main-text">Politeknik Negeri Tanah Laut Teknologi Informasi</span>
-    </div>
-
-    <!-- Baris 2: Logo TI + Teks "Teknologi Informasi" -->
-    <div class="logo-row">
-      <img src="/images/logo-ti.png" alt="Logo TI" class="logo">
-      <span class="main-text">Teknologi Informasi</span>
+      <img src="{{ asset('images/logo-politala.png') }}" alt="Logo Politala" class="logo">
+      <img src="{{ asset('images/logo-ti.png') }}" alt="Logo TI" class="logo logo-ti">
+      <img src="{{ asset('images/logo-sip3d.png') }}" alt="Logo SIP3D" class="logo logo-sip3d">
     </div>
   </div>
 
@@ -225,7 +195,7 @@
   </div>
 
   <footer>
-    © 2025 SIP3D | Sistem Informasi Dosen - Politala
+    © 2025 SIP3D | Powered by <strong>RINODER</strong>
   </footer>
 </body>
 </html>
