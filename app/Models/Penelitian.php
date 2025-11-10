@@ -15,5 +15,6 @@ class Penelitian extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'status',
+        'dosen_id', // ✅ tambahkan ini
     ];
 }

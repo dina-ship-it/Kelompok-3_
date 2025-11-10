@@ -4,24 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use App\Exports\DosenExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DosenController extends Controller
 {
-    // DASHBOARD
+    // Dashboard (opsional)
     public function dashboard()
     {
-        $dosens = Dosen::all(); // ambil semua data dosen
+        $dosens = Dosen::all();
         return view('dosen.dashboard', compact('dosens'));
     }
 
-    // TAMPILKAN SEMUA DATA
+    // Index: tampilkan data
     public function index()
     {
-        $dosen = Dosen::all();
+        // gunakan paginate jika dataset besar: Dosen::orderBy('nama')->paginate(10)
+        $dosen = Dosen::orderBy('nama')->get();
         return view('dosen.index', compact('dosen'));
     }
 
-    // FORM TAMBAH DATA
+    // Form tambah
     public function create()
     {
         $dosen = new Dosen();
@@ -29,53 +32,62 @@ class DosenController extends Controller
         return view('dosen.create', compact('dosen', 'button'));
     }
 
-    // SIMPAN DATA BARU
+    // Simpan data baru
     public function store(Request $request)
     {
-        $request->validate([
-            'nidn' => 'required|unique:dosens',
-            'nama' => 'required',
-            'email' => 'required|email|unique:dosens',
-            'fakultas' => 'required',
-            'prodi' => 'required',
-            'jabatan' => 'required',
-            'tahun' => 'required',
-            'status' => 'required',
+        $validated = $request->validate([
+            'nidn' => 'required|unique:dosens,nidn',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:dosens,email',
+            'fakultas' => 'required|string|max:255',
+            'prodi' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'tahun' => 'required|integer',
+            'status' => 'required|string',
         ]);
 
-        Dosen::create($request->all());
+        Dosen::create($validated);
+
         return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil ditambahkan.');
     }
 
-    // FORM EDIT
+    // Form edit
     public function edit(Dosen $dosen)
     {
         $button = 'Update';
-        return view('dosen.edit', compact('dosen', 'button'));
+        return view('dosen.create', compact('dosen', 'button')); // reuse form
     }
 
-    // UPDATE DATA
+    // Update data
     public function update(Request $request, Dosen $dosen)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nidn' => 'required|unique:dosens,nidn,' . $dosen->id,
-            'nama' => 'required',
+            'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:dosens,email,' . $dosen->id,
-            'fakultas' => 'required',
-            'prodi' => 'required',
-            'jabatan' => 'required',
-            'tahun' => 'required',
-            'status' => 'required',
+            'fakultas' => 'required|string|max:255',
+            'prodi' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'tahun' => 'required|integer',
+            'status' => 'required|string',
         ]);
 
-        $dosen->update($request->all());
+        $dosen->update($validated);
+
         return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil diperbarui.');
     }
 
-    // HAPUS DATA
+    // Hapus data
     public function destroy(Dosen $dosen)
     {
         $dosen->delete();
         return redirect()->route('dosen.index')->with('success', 'Data dosen berhasil dihapus.');
+    }
+
+    // Export Excel
+    public function export()
+    {
+        $fileName = 'Data_Dosen_' . date('Ymd_His') . '.xlsx';
+        return Excel::download(new DosenExport, $fileName);
     }
 }

@@ -55,6 +55,11 @@ Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('d
 Route::get('/dosen/prestasi', [PrestasiController::class, 'index'])->name('dosen.prestasi');
 
 // ===============================
+// 👨‍🏫 EXPORT DATA DOSEN (Excel)
+// ===============================
+Route::get('/dosen/export', [DosenController::class, 'export'])->name('dosen.export');
+
+// ===============================
 // 👨‍🏫 CRUD DOSEN
 // ===============================
 Route::resource('dosen', DosenController::class)->names([
@@ -70,6 +75,9 @@ Route::resource('dosen', DosenController::class)->names([
 // ===============================
 // 📚 PENELITIAN
 // ===============================
+// === Tambahan: export penelitian ===
+Route::get('/penelitian/export', [PenelitianController::class, 'export'])->name('penelitian.export');
+
 Route::resource('penelitian', PenelitianController::class)->names([
     'index' => 'penelitian.index',
     'create' => 'penelitian.create',

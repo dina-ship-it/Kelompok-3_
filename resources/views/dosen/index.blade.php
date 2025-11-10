@@ -41,6 +41,19 @@
         transform: scale(1.05);
         box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
     }
+    .btn-excel {
+        background: linear-gradient(135deg, #1fae2b, #2bb673);
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        padding: 8px 12px;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+    .btn-excel:hover {
+        transform: scale(1.03);
+        box-shadow: 0 5px 12px rgba(34, 139, 34, 0.18);
+    }
     .table thead {
         background-color: #f1f5f9;
         font-weight: bold;
@@ -60,6 +73,12 @@
         margin-bottom: 1rem;
         opacity: 0.8;
     }
+
+    /* Small responsive tweak */
+    @media (max-width: 576px) {
+        .card-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+        .card-header .actions { display:flex; gap:0.5rem; }
+    }
 </style>
 
 <div class="container py-5">
@@ -68,9 +87,17 @@
             <div class="card shadow-lg">
                 <div class="card-header">
                     <h4>📚 Data Dosen</h4>
-                    <a href="{{ route('dosen.create') }}" class="btn btn-tambah">
-                        <i class="bi bi-plus-circle"></i> Tambah Dosen
-                    </a>
+
+                    {{-- TOMBOL: Unduh Excel + Tambah Dosen --}}
+                    <div class="actions">
+                        <a href="{{ route('dosen.export') }}" class="btn btn-excel">
+                            <i class="bi bi-file-earmark-excel"></i> Unduh Excel
+                        </a>
+
+                        <a href="{{ route('dosen.create') }}" class="btn btn-tambah">
+                            <i class="bi bi-plus-circle"></i> Tambah Dosen
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card-body p-4">
@@ -124,6 +151,13 @@
                                 @endforeach
                             </tbody>
                         </table>
+
+                        {{-- Jika menggunakan pagination di controller, tampilkan links --}}
+                        @if(method_exists($dosen, 'links'))
+                        <div class="mt-3">
+                            {{ $dosen->links() }}
+                        </div>
+                        @endif
                     @endif
                 </div>
             </div>

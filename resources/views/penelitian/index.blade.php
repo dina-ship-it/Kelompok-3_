@@ -11,7 +11,7 @@
         <p class="text-gray-600 text-lg">Daftar penelitian dosen Politeknik Negeri Tanah Laut</p>
     </div>
 
-    <!-- 🔍 Search & Tambah -->
+    <!-- 🔍 Search & Tambah & Download -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-4">
         <div class="relative w-full md:w-1/3">
             <input type="text" placeholder="🔎 Cari judul penelitian..." 
@@ -19,10 +19,24 @@
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
         </div>
 
-        <a href="{{ route('penelitian.create') }}" 
-           class="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white px-6 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tambah Penelitian
-        </a>
+        <div class="flex items-center gap-3">
+            <!-- Download Excel -->
+            <a href="{{ route('penelitian.export') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-white font-medium"
+               style="background: linear-gradient(90deg,#10b981,#059669);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                  <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5z"/>
+                  <path d="M10.5 3.5V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 10.5 3.5z"/>
+                  <path d="M6.5 9.5v-3h1l.5 1.2L8.5 6.5h1v3h-1v-1.2L7.5 9.5h-1z"/>
+                </svg>
+                Download Excel
+            </a>
+
+            <a href="{{ route('penelitian.create') }}" 
+               class="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white px-6 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Tambah Penelitian
+            </a>
+        </div>
     </div>
 
     <!-- 🌿 Grid Penelitian -->
@@ -46,7 +60,7 @@
             <!-- 📅 Tanggal -->
             <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
                 <span><i class="fa-solid fa-calendar-days text-indigo-500"></i> {{ $p->tanggal_mulai }}</span>
-                <span><i class="fa-solid fa-hourglass-end text-indigo-500"></i> {{ $p->tanggal_selesai }}</span>
+                <span><i class="fa-solid fa-hourglass-end text-indigo-500"></i> {{ $p->tanggal_selesai ?? '-' }}</span>
             </div>
 
             <!-- 🏷️ Status -->
