@@ -45,6 +45,32 @@
     .form-control {
       border-radius: 8px;
     }
+
+    /* style tombol Google (mirip screenshot admin) */
+    .btn-google {
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin: 0 auto 12px;
+      box-shadow: none;
+    }
+    .btn-google img { width:18px; height:18px; }
+    .divider-or {
+      max-width: 320px;
+      margin: 10px auto 18px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .divider-or hr { flex:1; border-top:1px solid #e6e6e6; margin:0; }
+    .divider-or small { color:#9aa0a6; }
   </style>
 </head>
 <body class="d-flex vh-100 justify-content-center align-items-center">
@@ -55,6 +81,26 @@
     </div>
     <h4 class="text-center fw-bold">Login Dosen</h4>
     <p class="subtitle">SIP2D - Sistem Informasi Pengabdian, Penelitian, dan Prestasi Dosen</p>
+
+    {{-- tampilkan error flash jika ada --}}
+    @if(session('error'))
+      <div class="alert alert-danger py-2">{{ session('error') }}</div>
+    @endif
+
+    {{-- TOMBOL GOOGLE (letakkan sebelum form seperti di screenshot admin) --}}
+    <div class="text-center">
+      <a href="{{ url('/auth/google?role=dosen') }}" class="btn-google" role="button">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+        <span class="fw-medium">Sign in with Google</span>
+      </a>
+    </div>
+
+    {{-- divider "or" --}}
+    <div class="divider-or">
+      <hr>
+      <small>or</small>
+      <hr>
+    </div>
 
     @if($errors->any())
       <div class="alert alert-danger py-2">{{ $errors->first() }}</div>

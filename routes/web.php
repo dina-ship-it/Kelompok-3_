@@ -8,60 +8,50 @@ use App\Http\Controllers\PenelitianController;
 use App\Http\Controllers\PengabdianController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\GoogleController;
-use App\Http\Controllers\DashboardController; // ✅ ini penting, tambahin yaa sayang 💙
+use App\Http\Controllers\DashboardController;
 
-// ===============================
-// 🌐 HALAMAN AWAL
-// ===============================
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Route-file final untuk aplikasi SIP2D.
+| Pastikan GoogleController dan controller lain sudah ada.
+|
+*/
+
+// HALAMAN AWAL
 Route::get('/', function () {
     return view('welcome');
 });
 
-// ===============================
-// 👤 PILIH LOGIN
-// ===============================
+// PILIH LOGIN
 Route::get('/login/pilih', [AuthController::class, 'pilihLogin'])->name('login.pilih');
 
-// ===============================
-// 👨‍💼 ADMIN LOGIN
-// ===============================
+// ADMIN LOGIN (form & post)
 Route::get('/login/admin', [AuthController::class, 'showAdminLoginForm'])->name('login.admin');
 Route::post('/login/admin', [AuthController::class, 'adminLogin'])->name('login.admin.post');
 
-// ===============================
-// 👨‍🏫 DOSEN LOGIN
-// ===============================
+// DOSEN LOGIN
 Route::get('/login/dosen', [AuthController::class, 'showDosenLoginForm'])->name('login.dosen');
 Route::post('/login/dosen', [AuthController::class, 'dosenLogin'])->name('login.dosen.post');
 
-// ===============================
-// 🎓 MAHASISWA LOGIN
-// ===============================
+// MAHASISWA LOGIN
 Route::get('/login/mahasiswa', [AuthController::class, 'showMahasiswaLoginForm'])->name('login.mahasiswa');
 Route::post('/login/mahasiswa', [AuthController::class, 'mahasiswaLogin'])->name('login.mahasiswa.post');
 
-// ===============================
-// 🏠 DASHBOARD MAHASISWA
-// ===============================
+// DASHBOARD MAHASISWA
 Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
 Route::post('/mahasiswa/upload', [MahasiswaController::class, 'storeUpload'])->name('mahasiswa.storeUpload');
 
-// ===============================
-// 📊 DASHBOARD DOSEN
-// ===============================
+// DASHBOARD DOSEN & related
 Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
 Route::get('/dosen/penelitian', [PenelitianController::class, 'index'])->name('dosen.penelitian');
 Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('dosen.pengabdian');
 Route::get('/dosen/prestasi', [PrestasiController::class, 'index'])->name('dosen.prestasi');
-
-// ===============================
-// 👨‍🏫 EXPORT DATA DOSEN (Excel)
-// ===============================
 Route::get('/dosen/export', [DosenController::class, 'export'])->name('dosen.export');
 
-// ===============================
-// 👨‍🏫 CRUD DOSEN
-// ===============================
+// CRUD resource routes
 Route::resource('dosen', DosenController::class)->names([
     'index' => 'dosen.index',
     'create' => 'dosen.create',
@@ -72,12 +62,7 @@ Route::resource('dosen', DosenController::class)->names([
     'destroy' => 'dosen.destroy'
 ]);
 
-// ===============================
-// 📚 PENELITIAN
-// ===============================
-// === Tambahan: export penelitian ===
 Route::get('/penelitian/export', [PenelitianController::class, 'export'])->name('penelitian.export');
-
 Route::resource('penelitian', PenelitianController::class)->names([
     'index' => 'penelitian.index',
     'create' => 'penelitian.create',
@@ -88,9 +73,6 @@ Route::resource('penelitian', PenelitianController::class)->names([
     'destroy' => 'penelitian.destroy'
 ]);
 
-// ===============================
-// 🌍 PENGABDIAN
-// ===============================
 Route::resource('pengabdian', PengabdianController::class)->names([
     'index' => 'pengabdian.index',
     'create' => 'pengabdian.create',
@@ -101,9 +83,6 @@ Route::resource('pengabdian', PengabdianController::class)->names([
     'destroy' => 'pengabdian.destroy'
 ]);
 
-// ===============================
-// 🏆 PRESTASI
-// ===============================
 Route::resource('prestasi', PrestasiController::class)->names([
     'index' => 'prestasi.index',
     'create' => 'prestasi.create',
@@ -114,9 +93,6 @@ Route::resource('prestasi', PrestasiController::class)->names([
     'destroy' => 'prestasi.destroy'
 ]);
 
-// ===============================
-// 🎓 CRUD MAHASISWA
-// ===============================
 Route::resource('mahasiswa', MahasiswaController::class)->names([
     'index' => 'mahasiswa.index',
     'create' => 'mahasiswa.create',
@@ -127,18 +103,41 @@ Route::resource('mahasiswa', MahasiswaController::class)->names([
     'destroy' => 'mahasiswa.destroy'
 ]);
 
-// ===============================
-// 🧑‍💼 DASHBOARD ADMIN
-// ===============================
+// DASHBOARD ADMIN
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-// ===============================
-// 🚪 LOGOUT
-// ===============================
+// LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ===============================
-// 🔑 LOGIN GOOGLE
-// ===============================
+
+/*
+|--------------------------------------------------------------------------
+| GOOGLE OAUTH (Socialite)
+|--------------------------------------------------------------------------
+| Dua route berikut untuk redirect & callback (named routes).
+| Selain itu saya tambahkan route singkat /auth/google agar link lama (/auth/google?role=...) tetap bekerja.
+*/
+
+// Route named yang digunakan di Blade: route('login.google.redirect')
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('login.google.redirect');
-Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('login.google.callback');
+
+// Callback dari Google
+Route::get('/auth/google/callback',  [GoogleController::class, 'callback'])->name('login.google.callback');
+
+// Kompatibilitas: apabila ada link atau library yang memanggil /auth/google (tanpa /redirect)
+// maka route ini akan mengarahkan ke controller yang sama. (hindari 404)
+Route::get('/auth/google', function (\Illuminate\Http\Request $request) {
+    // redirect ke named route dengan query string yang sama
+    $qs = $request->getQueryString();
+    $url = route('login.google.redirect') . ($qs ? ('?' . $qs) : '');
+    return redirect($url);
+})->name('auth.google.compat');
+
+
+/*
+|--------------------------------------------------------------------------
+| OPTIONAL: fallback route (jika kamu punya)
+|--------------------------------------------------------------------------
+| Jika kamu menggunakan fallback route, pastikan Google routes diletakkan sebelum fallback.
+| Route::fallback(function() { return view('errors.404'); });
+*/
