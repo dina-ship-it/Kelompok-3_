@@ -14,10 +14,8 @@ use App\Http\Controllers\DashboardController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
 | Route-file final untuk aplikasi SIP2D.
 | Pastikan GoogleController dan controller lain sudah ada.
-|
 */
 
 // HALAMAN AWAL
@@ -62,7 +60,10 @@ Route::resource('dosen', DosenController::class)->names([
     'destroy' => 'dosen.destroy'
 ]);
 
+// PENELITIAN routes (tambah route CSV)
 Route::get('/penelitian/export', [PenelitianController::class, 'export'])->name('penelitian.export');
+Route::get('/penelitian/export.csv', [PenelitianController::class, 'exportCsv'])->name('penelitian.export.csv');
+
 Route::resource('penelitian', PenelitianController::class)->names([
     'index' => 'penelitian.index',
     'create' => 'penelitian.create',
@@ -109,35 +110,15 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('adm
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
-/*
-|--------------------------------------------------------------------------
-| GOOGLE OAUTH (Socialite)
-|--------------------------------------------------------------------------
-| Dua route berikut untuk redirect & callback (named routes).
-| Selain itu saya tambahkan route singkat /auth/google agar link lama (/auth/google?role=...) tetap bekerja.
-*/
-
-// Route named yang digunakan di Blade: route('login.google.redirect')
+// GOOGLE OAUTH (Socialite)
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])->name('login.google.redirect');
-
-// Callback dari Google
 Route::get('/auth/google/callback',  [GoogleController::class, 'callback'])->name('login.google.callback');
 
-// Kompatibilitas: apabila ada link atau library yang memanggil /auth/google (tanpa /redirect)
-// maka route ini akan mengarahkan ke controller yang sama. (hindari 404)
 Route::get('/auth/google', function (\Illuminate\Http\Request $request) {
-    // redirect ke named route dengan query string yang sama
     $qs = $request->getQueryString();
     $url = route('login.google.redirect') . ($qs ? ('?' . $qs) : '');
     return redirect($url);
 })->name('auth.google.compat');
 
-
-/*
-|--------------------------------------------------------------------------
-| OPTIONAL: fallback route (jika kamu punya)
-|--------------------------------------------------------------------------
-| Jika kamu menggunakan fallback route, pastikan Google routes diletakkan sebelum fallback.
-| Route::fallback(function() { return view('errors.404'); });
-*/
+// OPTIONAL: fallback route (letakkan fallback di paling bawah jika digunakan)
+// Route::fallback(function() { return view('errors.404'); });

@@ -1,100 +1,173 @@
+{{-- resources/views/penelitian/index.blade.php --}}
 @extends('layouts.app')
-
-@section('title', 'Data Penelitian | SIP3D')
+@section('title','Research List')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 py-10 px-6">
-
-    <!-- ✨ Header -->
-    <div class="text-center mb-12">
-        <h1 class="text-5xl font-extrabold text-indigo-700 mb-3">📖 Data Penelitian</h1>
-        <p class="text-gray-600 text-lg">Daftar penelitian dosen Politeknik Negeri Tanah Laut</p>
-    </div>
-
-    <!-- 🔍 Search & Tambah & Download -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-4">
-        <div class="relative w-full md:w-1/3">
-            <input type="text" placeholder="🔎 Cari judul penelitian..." 
-                   class="w-full rounded-full border border-gray-300 pl-12 pr-4 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none shadow-sm bg-white/80 backdrop-blur-sm">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    {{-- Header --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-800">Research List</h2>
+            <p class="text-sm text-gray-500 mt-1">Research and Community Service Information System</p>
         </div>
 
         <div class="flex items-center gap-3">
-            <!-- Download Excel -->
-            <a href="{{ route('penelitian.export') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-white font-medium"
-               style="background: linear-gradient(90deg,#10b981,#059669);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
-                  <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5z"/>
-                  <path d="M10.5 3.5V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 10.5 3.5z"/>
-                  <path d="M6.5 9.5v-3h1l.5 1.2L8.5 6.5h1v3h-1v-1.2L7.5 9.5h-1z"/>
-                </svg>
-                Download Excel
+            <input id="search" type="search" placeholder="Search title, field, lecturer..." class="px-3 py-2 border rounded-lg shadow-sm" />
+
+            {{-- Download Excel (requires maatwebsite/excel) --}}
+            <a href="{{ route('penelitian.export') }}" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow">
+                📥 Download Excel
             </a>
 
-            <a href="{{ route('penelitian.create') }}" 
-               class="bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white px-6 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2">
-                <i class="fa-solid fa-plus"></i> Tambah Penelitian
+            {{-- Download CSV (fallback) --}}
+            <a href="{{ route('penelitian.export.csv') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+                📄 Download CSV
+            </a>
+
+            <a href="{{ route('penelitian.create') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow">
+                New
             </a>
         </div>
     </div>
 
-    <!-- 🌿 Grid Penelitian -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        @forelse($penelitian as $p)
-        <div class="bg-white/90 backdrop-blur-md border border-gray-100 rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 p-6 relative overflow-hidden group">
-            
-            <!-- 💡 Background gradient kecil -->
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-blue-400"></div>
-
-            <!-- 📘 Judul -->
-            <h2 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-indigo-700 transition">
-                {{ $p->judul }}
-            </h2>
-
-            <!-- 🧭 Bidang -->
-            <p class="text-sm text-gray-500 mb-4">
-                <i class="fa-solid fa-tags text-indigo-500"></i> {{ $p->bidang }}
-            </p>
-
-            <!-- 📅 Tanggal -->
-            <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
-                <span><i class="fa-solid fa-calendar-days text-indigo-500"></i> {{ $p->tanggal_mulai }}</span>
-                <span><i class="fa-solid fa-hourglass-end text-indigo-500"></i> {{ $p->tanggal_selesai ?? '-' }}</span>
-            </div>
-
-            <!-- 🏷️ Status -->
-            <div class="mb-4">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                    {{ $p->status == 'Selesai' ? 'bg-green-100 text-green-700' : 
-                       ($p->status == 'Berjalan' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700') }}">
-                    {{ $p->status }}
-                </span>
-            </div>
-
-            <!-- ⚙️ Aksi -->
-            <div class="flex justify-end gap-3">
-                <a href="{{ route('penelitian.edit', $p->id) }}" 
-                   class="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full transition shadow">
-                    <i class="fa-solid fa-pen"></i>
-                </a>
-                <form action="{{ route('penelitian.destroy', $p->id) }}" method="POST" 
-                      onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" 
-                            class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition shadow">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </form>
+    {{-- Card / Table --}}
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="p-4 border-b">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-600">Showing <span class="font-medium">{{ $penelitians->count() }}</span> of <span class="font-medium">{{ $penelitians->total() }}</span> results</div>
+                <div class="text-xs text-gray-400">Updated: {{ now()->format('d M Y') }}</div>
             </div>
         </div>
-        @empty
-        <div class="col-span-3 text-center py-20 text-gray-500">
-            <i class="fa-solid fa-flask text-6xl text-indigo-400 mb-4"></i>
-            <p class="text-lg font-medium">Belum ada data penelitian yang terdaftar</p>
+
+        <div class="overflow-x-auto">
+            <table id="penelitian-table" class="min-w-full divide-y">
+                <thead class="bg-gray-50">
+                    <tr class="text-left text-sm text-gray-600">
+                        <th class="p-4 w-12">#</th>
+                        <th class="p-4">Title</th>
+                        <th class="p-4 w-48">Field</th>
+                        <th class="p-4 w-48">Lecturer</th>
+                        <th class="p-4 w-32">Status</th>
+                        <th class="p-4 w-36">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-white divide-y">
+                    @forelse($penelitians as $p)
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 text-sm text-gray-600">
+                            {{ $loop->iteration + ($penelitians->currentPage()-1)*$penelitians->perPage() }}
+                        </td>
+
+                        <td class="p-4">
+                            <div class="font-medium text-gray-800">{{ \Illuminate\Support\Str::limit($p->judul, 80) }}</div>
+
+                            {{-- Aman: parse tanggal dalam blok PHP --}}
+                            @php
+                                $mulai = '-';
+                                $selesai = null;
+
+                                try {
+                                    if (!empty($p->tanggal_mulai)) {
+                                        $mulai = \Illuminate\Support\Carbon::parse($p->tanggal_mulai)->format('d M Y');
+                                    }
+                                } catch (\Exception $e) {
+                                    $mulai = $p->tanggal_mulai;
+                                }
+
+                                try {
+                                    if (!empty($p->tanggal_selesai)) {
+                                        $selesai = \Illuminate\Support\Carbon::parse($p->tanggal_selesai)->format('d M Y');
+                                    }
+                                } catch (\Exception $e) {
+                                    $selesai = $p->tanggal_selesai;
+                                }
+                            @endphp
+
+                            <div class="text-xs text-gray-400 mt-1">
+                                {{ $mulai }}
+                                @if($selesai)
+                                    — {{ $selesai }}
+                                @endif
+                            </div>
+                        </td>
+
+                        <td class="p-4 text-sm text-gray-700">{{ $p->bidang }}</td>
+
+                        <td class="p-4 text-sm text-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm">
+                                    {{ optional($p->dosen)->name ? strtoupper(substr(optional($p->dosen)->name,0,1)) : '-' }}
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800 text-sm">{{ optional($p->dosen)->name ?? '-' }}</div>
+                                    <div class="text-xs text-gray-400">{{ optional($p->dosen)->nidn ?? '' }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="p-4">
+                            @if($p->status == 'Aktif')
+                                <span class="inline-block px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">{{ $p->status }}</span>
+                            @elseif(in_array($p->status, ['Selesai','Finished']))
+                                <span class="inline-block px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700">Finished</span>
+                            @else
+                                <span class="inline-block px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">{{ $p->status }}</span>
+                            @endif
+                        </td>
+
+                        <td class="p-4 text-sm text-gray-700">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ route('penelitian.edit', $p->id) }}" class="text-indigo-600 hover:underline">Edit</a>
+
+                                <form action="{{ route('penelitian.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Are you sure want to delete this research?')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:underline">Wipe</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-500">
+                            No research found. <a href="{{ route('penelitian.create') }}" class="text-indigo-600 hover:underline">Add new research</a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        @endforelse
+
+        {{-- Pagination --}}
+        <div class="p-4 border-t bg-gray-50 flex items-center justify-between">
+            <div class="text-sm text-gray-600">Page {{ $penelitians->currentPage() }} of {{ $penelitians->lastPage() }}</div>
+            <div>
+                {{ $penelitians->links() }}
+            </div>
+        </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('search');
+    const tableBody = document.querySelector('#penelitian-table tbody');
+
+    if (!input || !tableBody) return;
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        Array.from(tableBody.rows).forEach(row => {
+            const title = row.cells[1]?.innerText.toLowerCase() || '';
+            const field = row.cells[2]?.innerText.toLowerCase() || '';
+            const lecturer = row.cells[3]?.innerText.toLowerCase() || '';
+            row.style.display = (title.includes(q) || field.includes(q) || lecturer.includes(q)) ? '' : 'none';
+        });
+    });
+});
+</script>
+@endpush
+
 @endsection

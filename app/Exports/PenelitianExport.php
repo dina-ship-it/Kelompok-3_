@@ -7,83 +7,62 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class PenelitianExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithTitle
+class PenelitianExport implements FromCollection, WithHeadings, WithStyles
 {
-    /**
-     * Ambil data penelitian (sesuaikan field dengan tabelmu)
-     */
     public function collection()
     {
-        // contoh kolom: judul, peneliti (nama), tahun, sumber_dana, status
-        return Penelitian::select('judul', 'peneliti', 'tahun', 'sumber_dana', 'status')->get();
+        return Penelitian::select([
+            'id',
+            'dosen_id',
+            'mahasiswa_id',
+            'judul',
+            'bidang',
+            'tanggal_mulai',
+            'tanggal_selesai',
+            'status',
+            'dokumentasi',
+            'created_at',
+            'updated_at'
+        ])->get();
     }
 
-    /**
-     * Header Excel
-     */
     public function headings(): array
     {
         return [
-            'Judul Penelitian',
-            'Peneliti',
-            'Tahun',
-            'Sumber Dana',
+            'ID',
+            'Dosen ID',
+            'Mahasiswa ID',
+            'Judul',
+            'Bidang',
+            'Tanggal Mulai',
+            'Tanggal Selesai',
             'Status',
+            'Dokumentasi',
+            'Created At',
+            'Updated At',
         ];
     }
 
-    /**
-     * Styling lembar Excel
-     */
     public function styles(Worksheet $sheet)
     {
-        // buat header tebal, ukuran, dan rata-tengah
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:E1')->getFont()->setSize(12);
-        $sheet->getStyle('A1:E1')->getAlignment()->setHorizontal('center');
+        // Bold untuk header
+        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
 
-        // beri latar header warna lembut
-        $sheet->getStyle('A1:E1')->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setARGB('FFDDEEFF');
-
-        // border dan alignment untuk semua sel (A1 sampai kolom terakhir + lastRow)
-        $lastRow = $sheet->getHighestRow(); // setelah data dipindahkan akan mengembalikan jumlah baris
-        if ($lastRow < 1) {
-            $lastRow = 1;
+        // Auto-width semua kolom
+        foreach (range('A','K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $range = "A1:E{$lastRow}";
-        $sheet->getStyle($range)->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    'color' => ['argb' => 'FFB0B0B0'],
-                ],
-            ],
-            'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                'wrapText' => true,
-            ],
-        ]);
+        // Tambahkan BORDER (garis-garis tabel)
+        $lastRow = Penelitian::count() + 1; // +1 untuk header
 
-        // atur tinggi baris
-        for ($i = 1; $i <= $lastRow; $i++) {
-            $sheet->getRowDimension($i)->setRowHeight(22);
-        }
+        $sheet->getStyle("A1:K{$lastRow}")
+              ->getBorders()
+              ->getAllBorders()
+              ->setBorderStyle(Border::BORDER_THIN);
 
         return [];
-    }
-
-    /**
-     * Nama sheet
-     */
-    public function title(): string
-    {
-        return 'Data Penelitian';
     }
 }

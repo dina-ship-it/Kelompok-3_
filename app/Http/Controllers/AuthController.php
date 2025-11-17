@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -24,9 +26,26 @@ class AuthController extends Controller
 
     public function adminLogin(Request $request)
     {
-        // Login manual contoh
-        if ($request->email === 'admin@gmail.com' && $request->password === 'admin123') {
-            return redirect()->route('admin.dashboard')->with('success', 'Login admin berhasil!');
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|min:4',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        // coba login dengan Auth Laravel
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // cek role user
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            // jika role bukan admin → logout
+            Auth::logout();
+            return redirect()->route('login.pilih')
+                ->withErrors(['email' => 'Akun ini tidak memiliki akses admin.']);
         }
 
         return back()->withErrors(['email' => 'Email atau password salah.']);
@@ -42,8 +61,23 @@ class AuthController extends Controller
 
     public function dosenLogin(Request $request)
     {
-        if ($request->email === 'dosen@gmail.com' && $request->password === 'dosen123') {
-            return redirect()->route('dosen.dashboard')->with('success', 'Login dosen berhasil!');
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|min:4',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->role === 'dosen') {
+                return redirect()->route('dosen.dashboard');
+            }
+
+            Auth::logout();
+            return redirect()->route('login.pilih')
+                ->withErrors(['email' => 'Akun ini bukan akun dosen.']);
         }
 
         return back()->withErrors(['email' => 'Email atau password salah.']);
@@ -59,8 +93,23 @@ class AuthController extends Controller
 
     public function mahasiswaLogin(Request $request)
     {
-        if ($request->email === 'mahasiswa@gmail.com' && $request->password === 'mahasiswa123') {
-            return redirect()->route('mahasiswa.dashboard')->with('success', 'Login mahasiswa berhasil!');
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|min:4',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if ($user->role === 'mahasiswa') {
+                return redirect()->route('mahasiswa.dashboard');
+            }
+
+            Auth::logout();
+            return redirect()->route('login.pilih')
+                ->withErrors(['email' => 'Akun ini bukan mahasiswa.']);
         }
 
         return back()->withErrors(['email' => 'Email atau password salah.']);
@@ -71,11 +120,11 @@ class AuthController extends Controller
     // ===============================
     public function logout(Request $request)
     {
-        // Hapus session login (meskipun di sini manual login)
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Arahkan ke halaman pilih login
-        return redirect()->route('login.pilih')->with('success', 'Berhasil logout!');
+        return redirect()->route('login.pilih')
+            ->with('success', 'Anda berhasil logout.');
     }
 }

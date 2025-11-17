@@ -2,95 +2,149 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Penelitian;
 use Illuminate\Http\Request;
+use App\Models\Penelitian;
+use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
-// ✅ Tambahan untuk export Excel
-use App\Exports\PenelitianExport;
-use Maatwebsite\Excel\Facades\Excel;
+// Jika Anda menggunakan maatwebsite/excel, uncomment import berikut:
+// use Maatwebsite\Excel\Facades\Excel;
+// use App\Exports\PenelitianExport;
 
 class PenelitianController extends Controller
 {
-    // ===============================
-    // 📋 TAMPILKAN DATA PENELITIAN
-    // ===============================
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $penelitian = Penelitian::all();
-        return view('penelitian.index', compact('penelitian'));
+        // contoh pagination 10
+        $penelitians = Penelitian::orderBy('created_at', 'desc')->paginate(10);
+
+        return view('penelitian.index', compact('penelitians'));
     }
 
-    // ===============================
-    // ➕ FORM TAMBAH PENELITIAN
-    // ===============================
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         return view('penelitian.create');
     }
 
-    // ===============================
-    // 💾 SIMPAN DATA BARU
-    // ===============================
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        // contoh validasi sederhana — sesuaikan field dengan tabel Anda
+        $data = $request->validate([
             'judul' => 'required|string|max:255',
-            'bidang' => 'required|string|max:255',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'status' => 'required|in:Aktif,Selesai,Dibatalkan',
+            'peneliti' => 'nullable|string|max:255',
+            'tahun' => 'nullable|integer',
+            // tambahkan aturan lain sesuai kolom
         ]);
 
-        Penelitian::create($request->all());
+        Penelitian::create($data);
 
-        return redirect()->route('penelitian.index')->with('success', 'Data penelitian berhasil ditambahkan!');
+        return redirect()->route('penelitian.index')->with('success', 'Penelitian berhasil ditambahkan.');
     }
 
-    // ===============================
-    // ✏️ FORM EDIT
-    // ===============================
-    public function edit($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(Penelitian $penelitian)
     {
-        $penelitian = Penelitian::findOrFail($id);
+        return view('penelitian.show', compact('penelitian'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Penelitian $penelitian)
+    {
         return view('penelitian.edit', compact('penelitian'));
     }
 
-    // ===============================
-    // 🔄 UPDATE DATA
-    // ===============================
-    public function update(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Penelitian $penelitian)
     {
-        $request->validate([
+        $data = $request->validate([
             'judul' => 'required|string|max:255',
-            'bidang' => 'required|string|max:255',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'status' => 'required|in:Aktif,Selesai,Dibatalkan',
+            'peneliti' => 'nullable|string|max:255',
+            'tahun' => 'nullable|integer',
         ]);
 
-        $penelitian = Penelitian::findOrFail($id);
-        $penelitian->update($request->all());
+        $penelitian->update($data);
 
-        return redirect()->route('penelitian.index')->with('success', 'Data penelitian berhasil diperbarui!');
+        return redirect()->route('penelitian.index')->with('success', 'Penelitian berhasil diupdate.');
     }
 
-    // ===============================
-    // 🗑️ HAPUS DATA
-    // ===============================
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Penelitian $penelitian)
     {
-        $penelitian = Penelitian::findOrFail($id);
         $penelitian->delete();
-
-        return redirect()->route('penelitian.index')->with('success', 'Data penelitian berhasil dihapus!');
+        return redirect()->route('penelitian.index')->with('success', 'Penelitian berhasil dihapus.');
     }
 
-    // ===============================
-    // 📊 EXPORT KE EXCEL
-    // ===============================
-    public function export()
+    /**
+     * Export: smart method — jika maatwebsite/excel tersedia, gunakan itu.
+     * Jika tidak, fallback ke CSV streaming.
+     */
+    public function export(Request $request)
     {
-        $fileName = 'Data_Penelitian_' . date('Ymd_His') . '.xlsx';
-        return Excel::download(new PenelitianExport, $fileName);
+        // Jika paket Maatwebsite terpasang dan Anda sudah membuat export class:
+        // return Excel::download(new PenelitianExport, 'penelitian-' . now()->format('Ymd_His') . '.xlsx');
+
+        // Jika tidak ada paket, fallback ke CSV:
+        return $this->exportCsv();
+    }
+
+    /**
+     * Stream CSV export dari tabel penelitians (otomatis ambil semua kolom).
+     */
+    public function exportCsv(): StreamedResponse
+    {
+        $model = new Penelitian();
+        $table = $model->getTable(); // biasanya 'penelitians'
+        $columns = Schema::getColumnListing($table);
+
+        $filename = 'penelitian-' . now()->format('Ymd_His') . '.csv';
+
+        $callback = function () use ($columns) {
+            $out = fopen('php://output', 'w');
+
+            // optional: tulis BOM untuk UTF-8 agar Excel membaca karakter dengan benar
+            // fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // header kolom
+            fputcsv($out, $columns);
+
+            Penelitian::chunk(200, function ($rows) use ($out, $columns) {
+                foreach ($rows as $row) {
+                    $line = [];
+                    foreach ($columns as $col) {
+                        // cast to string agar fputcsv tidak error pada objek
+                        $value = data_get($row, $col);
+                        if (is_array($value) || is_object($value)) {
+                            $value = json_encode($value);
+                        }
+                        $line[] = $value;
+                    }
+                    fputcsv($out, $line);
+                }
+            });
+
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }
