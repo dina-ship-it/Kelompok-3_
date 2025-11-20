@@ -1,28 +1,73 @@
 @extends('layouts.app')
-@section('title', 'Tambah Penelitian')
 
 @section('content')
-<div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Tambah Penelitian</h1>
+<div class="container">
+    <h1>Tambah Penelitian</h1>
 
-    <form action="{{ route('penelitian.store') }}" method="POST" class="space-y-3">
+    @if($errors->any())
+      <div>
+        <ul>
+          @foreach($errors->all() as $err)
+            <li>{{ $err }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    <form method="POST" action="{{ route('penelitian.store') }}">
         @csrf
 
-        {{-- FIX: tambahkan dosen_id --}}
-        <input type="hidden" name="dosen_id" value="{{ auth()->id() }}">
+        <!-- contoh: pilih dosen melalui select -->
+        <div>
+            <label for="dosen_id">Dosen</label>
+            <select name="dosen_id" id="dosen_id" required>
+                <!--
+                    Ganti opsi di bawah dengan loop data dosen dari DB:
+                    @foreach($dosens as $dosen)
+                      <option value="{{ $dosen->id }}">{{ $dosen->nama }}</option>
+                    @endforeach
+                -->
+                <option value="1">Dosen 1</option>
+                <option value="2">Dosen 2</option>
+            </select>
+        </div>
 
-        <input type="text" name="judul" placeholder="Judul Penelitian" class="w-full border p-2 rounded" required>
-        <input type="text" name="bidang" placeholder="Bidang" class="w-full border p-2 rounded" required>
-        <input type="date" name="tanggal_mulai" class="w-full border p-2 rounded" required>
-        <input type="date" name="tanggal_selesai" class="w-full border p-2 rounded">
-        
-        <select name="status" class="w-full border p-2 rounded">
-            <option value="Aktif">Aktif</option>
-            <option value="Selesai">Selesai</option>
-            <option value="Dibatalkan">Dibatalkan</option>
-        </select>
+        <div>
+            <label for="judul">Judul</label>
+            <input type="text" name="judul" id="judul" value="{{ old('judul') }}" required>
+        </div>
 
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Simpan</button>
+        <div>
+            <label for="bidang">Bidang</label>
+            <input type="text" name="bidang" id="bidang" value="{{ old('bidang') }}">
+        </div>
+
+        <div>
+            <label for="tanggal_mulai">Tanggal Mulai</label>
+            <input type="date" name="tanggal_mulai" id="tanggal_mulai" value="{{ old('tanggal_mulai') }}">
+        </div>
+
+        <div>
+            <label for="tanggal_selesai">Tanggal Selesai</label>
+            <input type="date" name="tanggal_selesai" id="tanggal_selesai" value="{{ old('tanggal_selesai') }}">
+        </div>
+
+        <div>
+            <label for="status">Status</label>
+            <input type="text" name="status" id="status" value="{{ old('status') }}">
+        </div>
+
+        <div>
+            <label for="peneliti">Peneliti</label>
+            <input type="text" name="peneliti" id="peneliti" value="{{ old('peneliti') }}">
+        </div>
+
+        <div>
+            <label for="tahun">Tahun</label>
+            <input type="number" name="tahun" id="tahun" value="{{ old('tahun') }}">
+        </div>
+
+        <button type="submit">Simpan</button>
     </form>
 </div>
 @endsection

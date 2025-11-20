@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Exports\PengabdianExport;
 use Maatwebsite\Excel\Facades\Excel;
 
+// jika memakai stream csv fallback
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class PengabdianController extends Controller
 {
     public function index()
@@ -62,16 +65,17 @@ class PengabdianController extends Controller
     }
 
     /**
-     * Export menggunakan maatwebsite/excel -> .xlsx
+     * Export .xlsx (dipanggil oleh route 'pengabdian.export')
      */
-    public function exportExcel()
+    public function export()
     {
         $fileName = 'pengabdian_' . date('Ymd_His') . '.xlsx';
         return Excel::download(new PengabdianExport, $fileName);
     }
 
     /**
-     * Export cepat ke CSV tanpa package
+     * (Optional) Export cepat ke CSV tanpa package
+     * kalau gak pakai CSV, kamu bisa menghapus method ini
      */
     public function exportCsv()
     {

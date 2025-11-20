@@ -7,10 +7,6 @@ use App\Models\Penelitian;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-// Jika Anda menggunakan maatwebsite/excel, uncomment import berikut:
-// use Maatwebsite\Excel\Facades\Excel;
-// use App\Exports\PenelitianExport;
-
 class PenelitianController extends Controller
 {
     /**
@@ -18,9 +14,7 @@ class PenelitianController extends Controller
      */
     public function index(Request $request)
     {
-        // contoh pagination 10
         $penelitians = Penelitian::orderBy('created_at', 'desc')->paginate(10);
-
         return view('penelitian.index', compact('penelitians'));
     }
 
@@ -37,12 +31,16 @@ class PenelitianController extends Controller
      */
     public function store(Request $request)
     {
-        // contoh validasi sederhana — sesuaikan field dengan tabel Anda
+        // validasi input termasuk dosen_id
         $data = $request->validate([
-            'judul' => 'required|string|max:255',
-            'peneliti' => 'nullable|string|max:255',
-            'tahun' => 'nullable|integer',
-            // tambahkan aturan lain sesuai kolom
+            'dosen_id'       => 'required|integer|exists:dosens,id', // ubah jika nama tabel dosen berbeda atau tidak pakai exists
+            'judul'          => 'required|string|max:255',
+            'bidang'         => 'nullable|string|max:255',
+            'tanggal_mulai'  => 'nullable|date',
+            'tanggal_selesai'=> 'nullable|date|after_or_equal:tanggal_mulai',
+            'status'         => 'nullable|string|max:50',
+            'peneliti'       => 'nullable|string|max:255',
+            'tahun'          => 'nullable|integer',
         ]);
 
         Penelitian::create($data);
@@ -72,9 +70,14 @@ class PenelitianController extends Controller
     public function update(Request $request, Penelitian $penelitian)
     {
         $data = $request->validate([
-            'judul' => 'required|string|max:255',
-            'peneliti' => 'nullable|string|max:255',
-            'tahun' => 'nullable|integer',
+            'dosen_id'       => 'required|integer|exists:dosens,id',
+            'judul'          => 'required|string|max:255',
+            'bidang'         => 'nullable|string|max:255',
+            'tanggal_mulai'  => 'nullable|date',
+            'tanggal_selesai'=> 'nullable|date|after_or_equal:tanggal_mulai',
+            'status'         => 'nullable|string|max:50',
+            'peneliti'       => 'nullable|string|max:255',
+            'tahun'          => 'nullable|integer',
         ]);
 
         $penelitian->update($data);
@@ -97,10 +100,6 @@ class PenelitianController extends Controller
      */
     public function export(Request $request)
     {
-        // Jika paket Maatwebsite terpasang dan Anda sudah membuat export class:
-        // return Excel::download(new PenelitianExport, 'penelitian-' . now()->format('Ymd_His') . '.xlsx');
-
-        // Jika tidak ada paket, fallback ke CSV:
         return $this->exportCsv();
     }
 
@@ -110,25 +109,19 @@ class PenelitianController extends Controller
     public function exportCsv(): StreamedResponse
     {
         $model = new Penelitian();
-        $table = $model->getTable(); // biasanya 'penelitians'
+        $table = $model->getTable();
         $columns = Schema::getColumnListing($table);
 
         $filename = 'penelitian-' . now()->format('Ymd_His') . '.csv';
 
         $callback = function () use ($columns) {
             $out = fopen('php://output', 'w');
-
-            // optional: tulis BOM untuk UTF-8 agar Excel membaca karakter dengan benar
-            // fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
-
-            // header kolom
             fputcsv($out, $columns);
 
             Penelitian::chunk(200, function ($rows) use ($out, $columns) {
                 foreach ($rows as $row) {
                     $line = [];
                     foreach ($columns as $col) {
-                        // cast to string agar fputcsv tidak error pada objek
                         $value = data_get($row, $col);
                         if (is_array($value) || is_object($value)) {
                             $value = json_encode($value);

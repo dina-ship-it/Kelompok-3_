@@ -72,7 +72,15 @@ Route::get('/penelitian/export.csv', [PenelitianController::class, 'exportCsv'])
 // --- Penelitian CRUD ---
 Route::resource('penelitian', PenelitianController::class);
 
-// --- Pengabdian ---
+// --- Pengabdian EXPORT (HARUS DI ATAS RESOURCE) ---
+// Pastikan PengabdianController mempunyai method `export` dan `exportCsv`
+Route::get('/pengabdian/export', [PengabdianController::class, 'export'])
+    ->name('pengabdian.export');
+
+Route::get('/pengabdian/export.csv', [PengabdianController::class, 'exportCsv'])
+    ->name('pengabdian.export.csv');
+
+// --- Pengabdian CRUD ---
 Route::resource('pengabdian', PengabdianController::class);
 
 // --- Prestasi ---

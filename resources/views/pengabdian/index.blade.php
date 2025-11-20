@@ -1,57 +1,80 @@
 @extends('layouts.app')
-@section('title', 'Data Pengabdian')
+@section('title', 'Community Service Data')
 
 @section('content')
-<div class="max-w-6xl mx-auto">
+<div class="max-w-5xl mx-auto bg-white p-8 shadow rounded-lg">
+
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Data Pengabdian</h1>
-        <a href="{{ route('pengabdian.create') }}" 
-           class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg shadow">
-           + Tambah Pengabdian
-        </a>
+        <h1 class="text-2xl font-bold text-gray-800">Community Service Data</h1>
+
+        <div class="flex items-center gap-3">
+            <!-- DOWNLOAD EXCEL -->
+            <a href="{{ route('pengabdian.export') }}"
+               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+               Download Excel
+            </a>
+
+            <!-- ADD BUTTON -->
+            <a href="{{ route('pengabdian.create') }}" 
+               class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">
+               + Add Devotion
+            </a>
+        </div>
     </div>
 
-    <div class="overflow-x-auto bg-white shadow rounded-lg">
-        <table class="w-full border-collapse">
-            <thead class="bg-orange-100 text-gray-700">
-                <tr>
-                    <th class="border p-3">No</th>
-                    <th class="border p-3">Nama Kegiatan</th>
-                    <th class="border p-3">Jenis</th>
-                    <th class="border p-3">Tanggal Mulai</th>
-                    <th class="border p-3">Lokasi</th>
-                    <th class="border p-3">Deskripsi</th>
-                    <th class="border p-3 text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pengabdian as $index => $p)
-                <tr class="hover:bg-gray-50">
-                    <td class="border p-3">{{ $index + 1 }}</td>
-                    <td class="border p-3">{{ $p->nama_kegiatan }}</td>
-                    <td class="border p-3">{{ $p->jenis_kegiatan }}</td>
-                    <td class="border p-3">{{ $p->tanggal_mulai }}</td>
-                    <td class="border p-3">{{ $p->lokasi }}</td>
-                    <td class="border p-3">{{ Str::limit($p->deskripsi, 50) }}</td>
-                    <td class="border p-3 text-center">
-                        <div class="flex justify-center gap-2">
-                            <a href="{{ route('pengabdian.edit', $p->id_pengabdian) }}" 
-                               class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded">Edit</a>
-                            <form action="{{ route('pengabdian.destroy', $p->id_pengabdian) }}" method="POST" onsubmit="return confirm('Yakin ingin dihapus?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" 
-                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Hapus</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="text-center text-gray-500 py-6">Belum ada data pengabdian.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    @if($pengabdian->isEmpty())
+        <div class="p-6 bg-yellow-50 border border-yellow-200 rounded">
+            No data found.
+        </div>
+    @else
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-orange-100">
+                        <th class="border p-2 text-left">No</th>
+                        <th class="border p-2 text-left">Activity Name</th>
+                        <th class="border p-2 text-left">Type</th>
+                        <th class="border p-2 text-left">Start Date</th>
+                        <th class="border p-2 text-left">Location</th>
+                        <th class="border p-2 text-left">Description</th>
+                        <th class="border p-2 text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach($pengabdian as $row)
+                        <tr>
+                            <td class="border p-2 text-center">{{ $loop->iteration }}</td>
+                            <td class="border p-2">{{ $row->nama_kegiatan ?? '-' }}</td>
+                            <td class="border p-2">{{ $row->jenis_kegiatan ?? '-' }}</td>
+                            <td class="border p-2">{{ $row->tanggal_mulai ?? '-' }}</td>
+                            <td class="border p-2">{{ $row->lokasi ?? '-' }}</td>
+                            <td class="border p-2">{{ $row->deskripsi ?? '-' }}</td>
+
+                            <td class="border p-2 text-center">
+                                {{-- Tombol Edit --}}
+                                <a href="{{ route('pengabdian.edit', $row) }}" 
+                                   class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                                    Edit
+                                </a>
+
+                                {{-- Tombol Hapus --}}
+                                <form action="{{ route('pengabdian.destroy', $row) }}" 
+                                      method="POST" class="inline-block"
+                                      onsubmit="return confirm('Are you sure?');" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                        Wipe
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
 </div>
 @endsection
