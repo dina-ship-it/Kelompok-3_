@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Prestasi extends Model
 {
-    use HasFactory;
+    protected $table = 'prestasis';
 
     protected $fillable = [
+        'code',
+        'nama',
         'nama_prestasi',
-        'tingkat',
-        'penyelenggara',
-        'tanggal',
-        'keterangan',
+        'skor_sinta',
+        'skor_sinta_3yr',
+        'jumlah_buku',
+        'jumlah_hibah',
+        'publikasi_scholar',
     ];
 }

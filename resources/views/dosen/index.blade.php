@@ -4,164 +4,295 @@
 
 @section('content')
 <style>
-    body {
-        background: linear-gradient(135deg, #e0f7fa, #e3f2fd);
-    }
-    .card {
-        background: #ffffffd9;
-        backdrop-filter: blur(8px);
-        border: none;
-        border-radius: 25px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-    .card-header {
-        background: linear-gradient(135deg, #4b6cb7, #182848);
-        color: #fff;
-        border-top-left-radius: 25px;
-        border-top-right-radius: 25px;
-        padding: 1rem 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .card-header h4 {
-        margin: 0;
-        font-weight: bold;
-    }
-    .btn-tambah {
-        background: linear-gradient(135deg, #00b09b, #96c93d);
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        padding: 8px 15px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .btn-tambah:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
-    }
-    .btn-excel {
-        background: linear-gradient(135deg, #1fae2b, #2bb673);
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        padding: 8px 12px;
-        font-weight: 600;
-        margin-right: 8px;
-    }
-    .btn-excel:hover {
-        transform: scale(1.03);
-        box-shadow: 0 5px 12px rgba(34, 139, 34, 0.18);
-    }
-    .table thead {
-        background-color: #f1f5f9;
-        font-weight: bold;
-        color: #374151;
-    }
-    .table tbody tr:hover {
-        background-color: #f8fafc;
-        transition: 0.2s;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #64748b;
-    }
-    .empty-state img {
-        width: 160px;
-        margin-bottom: 1rem;
-        opacity: 0.8;
-    }
+  /* Background & wrapper */
+  .app-body, body {
+    background: linear-gradient(180deg, #eaf7ff 0%, #f2f9ff 100%);
+  }
+  .page-wrap {
+    max-width: 1300px;        /* diperbesar */
+    margin: 36px auto;
+    padding: 20px 20px 80px;  /* lebih lega */
+  }
 
-    /* Small responsive tweak */
-    @media (max-width: 576px) {
-        .card-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
-        .card-header .actions { display:flex; gap:0.5rem; }
-    }
+  /* Card */
+  .card-box {
+    background: #fff;
+    border-radius: 18px;   /* lebih melengkung */
+    box-shadow: 0 25px 55px rgba(18, 38, 63, 0.08); /* lebih premium */
+    overflow: hidden;
+    border: 1px solid #e6eefc;
+  }
+
+  /* Header */
+  .card-head {
+    background: linear-gradient(90deg,#1766d6,#3b82f6);
+    color: #fff;
+    padding: 22px 28px;    /* DIBESARKAN */
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-head .left {
+    display:flex;
+    gap:16px;
+    align-items:center;
+  }
+  .card-head h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.35rem;
+  }
+  .card-head small { opacity: .95; display:block; margin-top:2px; font-weight:500; font-size:.95rem; }
+
+  /* Controls (search + buttons) */
+  .controls {
+    display:flex;
+    gap:14px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .search-input {
+    width: 460px;            /* diperbesar */
+    max-width: 55vw;
+    padding: 12px 18px;      /* diperbesar */
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    font-size: 1rem;
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.9); }
+
+  .btn-excel, .btn-add {
+    border: none;
+    padding: 12px 20px;     /* diperbesar */
+    border-radius: 12px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    box-shadow: 0 10px 25px rgba(16,24,40,0.10);
+    font-size: 1rem;
+  }
+  .btn-excel { background: #10b981; color:#fff; }
+  .btn-add   { background: #7c3aed; color:#fff; }
+
+  /* Table area */
+  .card-body {
+    padding: 20px 22px;
+  }
+  .table-wrap {
+    border-radius: 12px;
+    border: 1px solid #e9f0fb;
+    overflow: auto;
+    background: #fff;
+  }
+
+  /* Table styles */
+  table.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; /* consistent columns */
+    font-size: 1rem;
+  }
+
+  table.custom-table thead th {
+    background:#f7fbff;
+    color: #0f172a;
+    font-weight:700;
+    padding: 14px 16px;
+    border-right: 1px solid #eef4fb;
+    vertical-align: middle;
+    text-align: left;
+  }
+  table.custom-table thead th:last-child { border-right: none; text-align:center; }
+
+  table.custom-table tbody td {
+    padding: 14px 16px;
+    border-top: 1px solid #f1f6fb;
+    border-right: 1px solid #f1f6fb;
+    vertical-align: middle;
+    font-size: 1rem;
+    color: #0b1220;
+    background: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 64px; /* lebih tinggi */
+  }
+  table.custom-table tbody td:last-child { border-right: none; text-align:center; }
+
+  /* Email wrap */
+  .td-email { white-space: normal; word-wrap: break-word; max-width:320px; }
+
+  /* Narrow columns */
+  .col-no { width:64px; text-align:center; }
+  .col-action { width:120px; text-align:center; }
+  .col-status { width:140px; text-align:center; }
+
+  /* Status badge */
+  .badge-active {
+    display:inline-block;
+    background:#10b981;
+    color:#fff;
+    padding:8px 14px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:.95rem;
+  }
+
+  /* Action icons */
+  .action-btn {
+    border: none;
+    background: transparent;
+    color: #475569;
+    font-size: 1.18rem;
+    padding: 8px;
+    margin-left:10px;
+    transition: transform .12s ease, color .12s ease;
+  }
+  .action-btn:hover { color:#0f172a; transform: scale(1.12); }
+
+  /* Footer / pagination area */
+  .card-foot {
+    padding: 18px 22px;
+    background: transparent;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+
+  /* Empty row message more visible */
+  .empty-row {
+    padding: 30px 18px;
+    color: #64748b;
+    text-align: center;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 1100px) {
+    .search-input { width: 360px; }
+  }
+  @media (max-width: 900px) {
+    .search-input { width: 260px; }
+    table.custom-table thead th, table.custom-table tbody td { font-size:.92rem; padding:10px 12px; height:auto; white-space:normal; }
+    .td-email { max-width: none; }
+  }
+  @media (max-width: 580px) {
+    .card-head { flex-direction: column; align-items:flex-start; gap:12px; padding:16px; }
+    .controls { width:100%; justify-content:space-between; }
+    .btn-excel, .btn-add { padding:10px 12px; font-size:.95rem; }
+  }
 </style>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-lg">
-                <div class="card-header">
-                    <h4>📚 Data Dosen</h4>
+<div class="page-wrap">
+  <div class="card-box">
 
-                    {{-- TOMBOL: Unduh Excel + Tambah Dosen --}}
-                    <div class="actions">
-                        <a href="{{ route('dosen.export') }}" class="btn btn-excel">
-                            <i class="bi bi-file-earmark-excel"></i> Unduh Excel
-                        </a>
-
-                        <a href="{{ route('dosen.create') }}" class="btn btn-tambah">
-                            <i class="bi bi-plus-circle"></i> Tambah Dosen
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card-body p-4">
-                    @if ($dosen->isEmpty())
-                        <div class="empty-state">
-                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="Empty Data">
-                            <h5 class="fw-bold">Belum ada data dosen</h5>
-                            <p>Yuk tambahkan data dosen pertama kamu dengan menekan tombol <b>"Tambah Dosen"</b> di atas! 🌟</p>
-                        </div>
-                    @else
-                        <table class="table align-middle">
-                            <thead class="text-center">
-                                <tr>
-                                    <th>No</th>
-                                    <th>NIDN</th>
-                                    <th>Nama</th>
-                                    <th>Email</th>
-                                    <th>Fakultas</th>
-                                    <th>Prodi</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-center">
-                                @foreach ($dosen as $index => $dsn)
-                                <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $dsn->nidn }}</td>
-                                    <td>{{ $dsn->nama }}</td>
-                                    <td>{{ $dsn->email }}</td>
-                                    <td>{{ $dsn->fakultas }}</td>
-                                    <td>{{ $dsn->prodi }}</td>
-                                    <td>
-                                        <span class="badge {{ $dsn->status == 'Aktif' ? 'bg-success' : 'bg-secondary' }}">
-                                            {{ $dsn->status }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('dosen.edit', $dsn->id) }}" class="btn btn-sm btn-warning">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('dosen.destroy', $dsn->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus data ini?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        {{-- Jika menggunakan pagination di controller, tampilkan links --}}
-                        @if(method_exists($dosen, 'links'))
-                        <div class="mt-3">
-                            {{ $dosen->links() }}
-                        </div>
-                        @endif
-                    @endif
-                </div>
-            </div>
+    {{-- header --}}
+    <div class="card-head">
+      <div class="left">
+        <div style="font-size:1.35rem; margin-right:8px;">📚</div>
+        <div>
+          <h4>Lecturer Data</h4>
+          <small>Manage lecturer data — SIP3D</small>
         </div>
+      </div>
+
+      <div class="controls">
+        {{-- Search (GET) --}}
+        <form action="{{ route('dosen.index') }}" method="GET" class="d-flex align-items-center">
+          <input type="text" name="search" class="search-input" placeholder="Search for NIDN, name, or email..." value="{{ request('search') }}">
+        </form>
+
+        {{-- Buttons --}}
+        <a href="{{ route('dosen.export') }}" class="btn-excel" title="Download Excel">
+          <i class="bi bi-file-earmark-spreadsheet"></i> Excel
+        </a>
+        <a href="{{ route('dosen.create') }}" class="btn-add" title="Add Lecturer">
+          <i class="bi bi-plus-lg"></i> Add Lecturer
+        </a>
+      </div>
     </div>
+
+    {{-- body: table --}}
+    <div class="card-body">
+      <div class="table-wrap">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th class="col-no">No</th>
+              <th>NIDN</th>
+              <th>Name</th>
+              <th>E-mail</th>
+              <th>Faculty</th>
+              <th>Study Program</th>
+              <th class="col-status">Status</th>
+              <th class="col-action">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @php
+              $start = isset($dosen) && method_exists($dosen, 'firstItem') && $dosen->firstItem() ? $dosen->firstItem() : 1;
+            @endphp
+
+            @forelse($dosen as $i => $dsn)
+              <tr>
+                <td class="col-no">{{ isset($start) ? $start + $i : $loop->iteration }}</td>
+                <td>{{ $dsn->nidn ?? '-' }}</td>
+                <td style="font-weight:600">{{ $dsn->nama ?? $dsn->name ?? '-' }}</td>
+                <td class="td-email text-muted">{{ $dsn->email ?? '-' }}</td>
+                <td>{{ $dsn->fakultas ?? '-' }}</td>
+                <td>{{ $dsn->prodi ?? $dsn->study_program ?? '-' }}</td>
+                <td class="col-status">
+                  @if(isset($dsn->status) && in_array(strtolower($dsn->status), ['aktif','active']))
+                    <span class="badge-active">Active</span>
+                  @else
+                    <span class="badge bg-secondary" style="border-radius:8px;padding:.45rem .6rem">Inactive</span>
+                  @endif
+                </td>
+                <td class="col-action">
+                  <a href="{{ route('dosen.edit', $dsn->id) }}" title="Edit" class="action-btn">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+
+                  <form action="{{ route('dosen.destroy', $dsn->id) }}" method="POST" style="display:inline-block" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="action-btn" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="8" class="empty-row">
+                  Tidak ada data dosen. Tekan <strong>Add Lecturer</strong> untuk menambahkan.
+                </td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {{-- footer --}}
+    <div class="card-foot">
+      <div class="text-muted small">
+        Showing {{ isset($dosen) && method_exists($dosen,'count') ? $dosen->count() : (count($dosen) ?? 0) }} entries
+      </div>
+      <div>
+        @if(isset($dosen) && method_exists($dosen, 'links'))
+          {{ $dosen->withQueryString()->links() }}
+        @endif
+      </div>
+    </div>
+
+  </div>
 </div>
+
 @endsection

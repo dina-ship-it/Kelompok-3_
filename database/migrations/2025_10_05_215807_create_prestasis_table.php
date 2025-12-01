@@ -6,27 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Jalankan migrasi: membuat tabel 'prestasis'
-     */
     public function up(): void
     {
-        Schema::create('prestasis', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_prestasi');
-            $table->string('tingkat');
-            $table->string('penyelenggara');
-            $table->date('tanggal');
-            $table->text('keterangan')->nullable();
-            $table->timestamps();
+        Schema::table('prestasis', function (Blueprint $table) {
+            // Tambah kolom TPK (posisi after('id') aman karena id pasti ada)
+            $table->string('code')->nullable()->after('id')->index();
+            $table->string('nama')->nullable()->after('code');
+
+            $table->integer('skor_sinta')->default(0)->after('nama');
+            $table->integer('skor_sinta_3yr')->default(0)->after('skor_sinta');
+            $table->integer('jumlah_buku')->default(0)->after('skor_sinta_3yr');
+            $table->integer('jumlah_hibah')->default(0)->after('jumlah_buku');
+            $table->integer('publikasi_scholar')->default(0)->after('jumlah_hibah');
         });
     }
 
-    /**
-     * Batalkan migrasi (hapus tabel jika dibatalkan)
-     */
     public function down(): void
     {
-        Schema::dropIfExists('prestasis');
+        Schema::table('prestasis', function (Blueprint $table) {
+            $table->dropColumn([
+                'code',
+                'nama',
+                'skor_sinta',
+                'skor_sinta_3yr',
+                'jumlah_buku',
+                'jumlah_hibah',
+                'publikasi_scholar',
+            ]);
+        });
     }
 };
