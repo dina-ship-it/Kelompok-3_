@@ -67,23 +67,65 @@ Route::middleware(['auth'])->group(function () {
     // DASHBOARD (Admin)
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    // MAHASISWA DASH
-    Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
-    Route::post('/mahasiswa/upload', [MahasiswaController::class, 'storeUpload'])->name('mahasiswa.storeUpload');
+    /*
+    |--------------------------------------------------------------------------
+    | MAHASISWA
+    |--------------------------------------------------------------------------
+    | Dashboard + upload umum (sudah ada) + upload per-penelitian
+    */
+    // Dashboard Mahasiswa
+    Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])
+        ->name('mahasiswa.dashboard');
 
-    // DOSEN DASH
+    // Upload dokumentasi umum (lama)
+    Route::post('/mahasiswa/upload', [MahasiswaController::class, 'storeUpload'])
+        ->name('mahasiswa.storeUpload');
+
+    // === Tambahan: upload dokumentasi berdasarkan penelitian ===
+    // Daftar penelitian untuk mahasiswa (kalau mau route khusus, tapi
+    // biasanya ditampilkan di dalam dashboard() langsung)
+    // Route::get('/mahasiswa/penelitian', [MahasiswaController::class, 'penelitianMahasiswa'])
+    //     ->name('mahasiswa.penelitian');
+
+    // Form upload dokumentasi untuk sebuah penelitian
+    Route::get('/mahasiswa/dokumentasi/{penelitian}/create', [MahasiswaController::class, 'createDokumentasi'])
+        ->name('mahasiswa.dokumentasi.create');
+
+    // Simpan dokumentasi untuk sebuah penelitian
+    Route::post('/mahasiswa/dokumentasi/{penelitian}', [MahasiswaController::class, 'storeDokumentasi'])
+        ->name('mahasiswa.dokumentasi.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOSEN
+    |--------------------------------------------------------------------------
+    */
     Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
     Route::get('/dosen/penelitian', [PenelitianController::class, 'index'])->name('dosen.penelitian');
     Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('dosen.pengabdian');
     Route::get('/dosen/export', [DosenController::class, 'export'])->name('dosen.export');
 
-    // EXPORT generic
+    // PRESTASI (link dari dashboard dosen → redirect ke TPK)
+    Route::get('/dosen/prestasi', function () {
+        return redirect()->route('tpk.index');
+    })->name('dosen.prestasi');
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORT generic
+    |--------------------------------------------------------------------------
+    */
     Route::get('/penelitian/export', [PenelitianController::class, 'export'])->name('penelitian.export');
     Route::get('/penelitian/export.csv', [PenelitianController::class, 'exportCsv'])->name('penelitian.export.csv');
     Route::get('/pengabdian/export', [PengabdianController::class, 'export'])->name('pengabdian.export');
     Route::get('/pengabdian/export.csv', [PengabdianController::class, 'exportCsv'])->name('pengabdian.export.csv');
 
-    // CRUD resources (non-TPK)
+    /*
+    |--------------------------------------------------------------------------
+    | CRUD resources (non-TPK)
+    |--------------------------------------------------------------------------
+    */
     Route::resource('dosen', DosenController::class);
     Route::resource('penelitian', PenelitianController::class);
     Route::resource('pengabdian', PengabdianController::class);
@@ -115,7 +157,6 @@ Route::middleware(['auth'])->group(function () {
 
         /*
          * Criteria management (kriteria)
-         * names: tpk.kriteria.index, store, edit, update, destroy
          */
         Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
         Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.store');
@@ -123,10 +164,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update');
         Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
 
-        /*
-         * Additional TPK helper routes
-         * - Hitung bobot otomatis (dipanggil dari tombol di view)
-         */
+        // Hitung bobot otomatis
         Route::get('/kriteria/hitung', [KriteriaController::class, 'hitungOtomatis'])->name('kriteria.hitung');
     });
 
@@ -134,8 +172,6 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | Compatibility: Legacy 'prestasi.*' routes (redirect to TPK)
     |--------------------------------------------------------------------------
-    | If other pieces of the app still call route('prestasi.*'), redirect them
-    | to the TPK pages so missing PrestasiController doesn't break things.
     */
     Route::get('/prestasi', function () { return redirect()->route('tpk.index'); })->name('prestasi.index');
     Route::get('/prestasi/create', function () { return redirect()->route('tpk.alternatif.create'); })->name('prestasi.create');

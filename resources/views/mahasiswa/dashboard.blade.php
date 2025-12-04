@@ -1,96 +1,129 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Mahasiswa')
-
 @section('content')
-<div class="min-h-screen bg-gray-50 py-12 px-8">
-    <div class="max-w-7xl mx-auto">
+<div class="container mt-4">
 
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-2">
-            <h1 class="text-3xl font-extrabold text-gray-800">
-                SIP3D - Dashboard Mahasiswa
-            </h1>
+    @php
+        // kalau controller belum kirim, biar nggak error
+        $penelitians = $penelitians ?? collect();
+    @endphp
 
-            {{-- Tombol Kembali sejajar dengan judul --}}
-            <button type="button"
-                onclick="history.back()"
-                class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-sm transition">
-                Kembali
-            </button>
+    {{-- Heading --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">SIP3D - Dashboard Mahasiswa</h3>
+            <small class="text-muted">
+                Upload dokumentasi foto dan video kegiatan penelitian serta pengabdian masyarakat.
+            </small>
         </div>
-
-        <p class="text-gray-500 text-lg mb-12">
-            Upload dokumentasi foto dan video penelitian serta pengabdian masyarakat
-        </p>
-
-        <!-- Statistik -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-14">
-            <div class="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition">
-                <div class="flex flex-col items-center">
-                    <div class="bg-green-100 text-green-600 p-5 rounded-full mb-3">
-                        <i class="fa-solid fa-image text-4xl"></i>
-                    </div>
-                    <p class="text-4xl font-bold">0</p>
-                    <p class="text-gray-500 text-lg mt-2">Foto Dokumentasi</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition">
-                <div class="flex flex-col items-center">
-                    <div class="bg-purple-100 text-purple-600 p-5 rounded-full mb-3">
-                        <i class="fa-solid fa-video text-4xl"></i>
-                    </div>
-                    <p class="text-4xl font-bold">0</p>
-                    <p class="text-gray-500 text-lg mt-2">Video Dokumentasi</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-10 rounded-2xl shadow-lg hover:shadow-2xl transition">
-                <div class="flex flex-col items-center">
-                    <div class="bg-blue-100 text-blue-600 p-5 rounded-full mb-3">
-                        <i class="fa-solid fa-file text-4xl"></i>
-                    </div>
-                    <p class="text-4xl font-bold">0</p>
-                    <p class="text-gray-500 text-lg mt-2">Total Dokumentasi</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Upload Section -->
-        <div class="bg-white p-12 rounded-2xl shadow-lg hover:shadow-2xl transition max-w-3xl mx-auto">
-            <div class="flex flex-col items-center text-center">
-                <div class="bg-blue-100 text-blue-600 p-5 rounded-full mb-5">
-                    <i class="fa-solid fa-cloud-arrow-up text-4xl"></i>
-                </div>
-                <h2 class="text-2xl font-semibold mb-4">Upload Dokumentasi</h2>
-                <p class="text-gray-500 mb-8 text-lg">
-                    Upload foto dan video dokumentasi kegiatan penelitian dan pengabdian masyarakat
-                </p>
-
-                <form action="#" method="POST" enctype="multipart/form-data" class="w-full">
-                    @csrf
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-lg font-medium mb-2">Judul Dokumentasi</label>
-                        <input type="text" name="judul"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-                            placeholder="Masukkan judul dokumentasi...">
-                    </div>
-
-                    <div class="mb-8">
-                        <label class="block text-gray-700 text-lg font-medium mb-2">Upload File</label>
-                        <input type="file" name="file"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg cursor-pointer focus:ring-2 focus:ring-indigo-400 outline-none">
-                    </div>
-
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg px-8 py-3 rounded-xl w-full transition">
-                        Upload Sekarang
-                    </button>
-                </form>
-            </div>
-        </div>
-
+        <a href="{{ url()->previous() }}" class="btn btn-outline-primary">
+            Kembali
+        </a>
     </div>
+
+    {{-- Flash message --}}
+    @if(session('success'))
+        <div class="alert alert-success mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Kartu statistik --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="rounded-circle mx-auto mb-3" style="width:90px;height:90px;background:#e9f9ef;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-image" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 class="mb-0">{{ $fotoCount ?? 0 }}</h3>
+                    <small class="text-muted">Foto Dokumentasi</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="rounded-circle mx-auto mb-3" style="width:90px;height:90px;background:#f3e9ff;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-camera-video" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 class="mb-0">{{ $videoCount ?? 0 }}</h3>
+                    <small class="text-muted">Video Dokumentasi</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="rounded-circle mx-auto mb-3" style="width:90px;height:90px;background:#e9f1ff;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-file-earmark-text" style="font-size:2rem;"></i>
+                    </div>
+                    <h3 class="mb-0">{{ ($fotoCount ?? 0) + ($videoCount ?? 0) }}</h3>
+                    <small class="text-muted">Total Dokumentasi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Penelitian yang ditugaskan --}}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h4 class="mb-0">Penelitian yang Ditugaskan</h4>
+            <small class="text-muted">
+                Daftar penelitian di mana Anda menjadi penanggung jawab dokumentasi.
+            </small>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        @if($penelitians->isEmpty())
+            <div class="card-body">
+                <div class="alert alert-info mb-0">
+                    Belum ada penelitian yang menugaskan Anda sebagai mahasiswa dokumentasi.
+                </div>
+            </div>
+        @else
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:50px;">No</th>
+                                <th>Judul Penelitian</th>
+                                <th style="width:180px;">Ketua Penelitian (Dosen)</th>
+                                <th style="width:150px;">Bidang</th>
+                                <th style="width:80px;">Tahun</th>
+                                <th style="width:110px;">Status</th>
+                                <th class="text-end" style="width:170px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($penelitians as $penelitian)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td class="fw-semibold">
+                                        {{ $penelitian->judul }}
+                                    </td>
+                                    <td>
+                                        {{ optional($penelitian->dosen)->nama ?? $penelitian->ketua_manual ?? '-' }}
+                                    </td>
+                                    <td>{{ $penelitian->bidang ?? '-' }}</td>
+                                    <td class="text-center">{{ $penelitian->tahun ?? '-' }}</td>
+                                    <td class="text-center">{{ $penelitian->status ?? '-' }}</td>
+                                    <td class="text-end">
+                                        <a href="{{ route('mahasiswa.dokumentasi.create', $penelitian->id) }}"
+                                           class="btn btn-sm btn-primary">
+                                            Upload Dokumentasi
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+    </div>
+
 </div>
 @endsection

@@ -2,21 +2,32 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Penelitian extends Model
 {
-    protected $table = 'penelitians'; // sesuaikan jika nama tabel berbeda
+    use HasFactory;
 
+    protected $table = 'penelitians';
+
+    // Columns that can be mass-assigned
     protected $fillable = [
         'dosen_id',
+        'ketua_manual',    // manual lead lecturer name
         'judul',
         'bidang',
         'tanggal_mulai',
         'tanggal_selesai',
         'status',
-        'peneliti',
+        'peneliti',        // research members
+        'mahasiswa_dok',   // documentation student
         'tahun',
-        // tambahkan kolom lain jika perlu
     ];
+
+    // Relation to Dosen model
+    public function dosen()
+    {
+        return $this->belongsTo(Dosen::class, 'dosen_id');
+    }
 }
