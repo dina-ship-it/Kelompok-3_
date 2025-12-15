@@ -3,120 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengabdian;
+use App\Models\Dosen;
 use Illuminate\Http\Request;
-
-// untuk Excel
-use App\Exports\PengabdianExport;
-use Maatwebsite\Excel\Facades\Excel;
-
-// jika memakai stream csv fallback
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PengabdianController extends Controller
 {
     public function index()
     {
-        $pengabdian = Pengabdian::orderBy('created_at','desc')->get();
-        return view('pengabdian.index', compact('pengabdian'));
+        $items = Pengabdian::with('ketua')->latest()->paginate(15);
+        return view('pengabdian.index', compact('items')); // changed
     }
 
     public function create()
     {
-        return view('pengabdian.create');
+        $dosens = Dosen::orderBy('nama')->get();
+        return view('pengabdian.create', compact('dosens')); // changed
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_kegiatan' => 'required',
-            'jenis_kegiatan' => 'required',
-            'tanggal_mulai' => 'required|date',
-            'lokasi' => 'required',
-            'deskripsi' => 'nullable',
+        $data = $request->validate([
+            'ketua_dosen_id' => 'required|exists:dosens,id',
+            'judul' => 'required|string|max:255',
+            'bidang' => 'nullable|string|max:255',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status' => 'nullable|string|max:100',
+            'anggota' => 'nullable|string',
+            'mahasiswa_penanggung_jawab' => 'nullable|string|max:255',
+            'tahun' => 'nullable|digits:4|integer',
         ]);
 
-        Pengabdian::create($request->all());
-        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil ditambahkan.');
+        Pengabdian::create($data);
+
+        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil disimpan.'); // changed
+    }
+
+    public function show(Pengabdian $pengabdian)
+    {
+        $pengabdian->load('ketua');
+        return view('pengabdian.show', compact('pengabdian')); // changed
     }
 
     public function edit(Pengabdian $pengabdian)
     {
-        return view('pengabdian.edit', compact('pengabdian'));
+        $dosens = Dosen::orderBy('nama')->get();
+        return view('pengabdian.edit', compact('pengabdian', 'dosens')); // changed
     }
 
     public function update(Request $request, Pengabdian $pengabdian)
     {
-        $request->validate([
-            'nama_kegiatan' => 'required',
-            'jenis_kegiatan' => 'required',
-            'tanggal_mulai' => 'required|date',
-            'lokasi' => 'required',
-            'deskripsi' => 'nullable',
+        $data = $request->validate([
+            'ketua_dosen_id' => 'required|exists:dosens,id',
+            'judul' => 'required|string|max:255',
+            'bidang' => 'nullable|string|max:255',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status' => 'nullable|string|max:100',
+            'anggota' => 'nullable|string',
+            'mahasiswa_penanggung_jawab' => 'nullable|string|max:255',
+            'tahun' => 'nullable|digits:4|integer',
         ]);
 
-        $pengabdian->update($request->all());
-        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil diperbarui.');
+        $pengabdian->update($data);
+
+        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil diupdate.'); // changed
     }
 
     public function destroy(Pengabdian $pengabdian)
     {
         $pengabdian->delete();
-        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil dihapus.');
-    }
-
-    /**
-     * Export .xlsx (dipanggil oleh route 'pengabdian.export')
-     */
-    public function export()
-    {
-        $fileName = 'pengabdian_' . date('Ymd_His') . '.xlsx';
-        return Excel::download(new PengabdianExport, $fileName);
-    }
-
-    /**
-     * (Optional) Export cepat ke CSV tanpa package
-     * kalau gak pakai CSV, kamu bisa menghapus method ini
-     */
-    public function exportCsv()
-    {
-        $fileName = 'pengabdian_' . date('Ymd_His') . '.csv';
-
-        $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename={$fileName}",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0",
-        ];
-
-        $columns = ['No','Activity Name','Type','Start Date','End Date','Location','Lecturer','Description','Status'];
-
-        $callback = function() use ($columns) {
-            $file = fopen('php://output', 'w');
-            // tulis BOM agar Excel mengenali UTF-8
-            fputs($file, (chr(0xEF) . chr(0xBB) . chr(0xBF)));
-            fputcsv($file, $columns);
-
-            $rows = Pengabdian::with('dosen')->orderBy('created_at','desc')->get();
-
-            foreach ($rows as $row) {
-                $line = [
-                    $row->id,
-                    $row->nama_kegiatan ?? '',
-                    $row->jenis_kegiatan ?? '',
-                    $row->tanggal_mulai ?? '',
-                    $row->tanggal_selesai ?? '',
-                    $row->lokasi ?? '',
-                    optional($row->dosen)->name ?? '',
-                    $row->deskripsi ?? '',
-                    $row->status ?? '',
-                ];
-                fputcsv($file, $line);
-            }
-
-            fclose($file);
-        };
-
-        return response()->streamDownload($callback, $fileName, $headers);
+        return redirect()->route('pengabdian.index')->with('success', 'Data pengabdian berhasil dihapus.'); // changed
     }
 }

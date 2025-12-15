@@ -129,6 +129,27 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('dosen', DosenController::class);
     Route::resource('penelitian', PenelitianController::class);
     Route::resource('pengabdian', PengabdianController::class);
+
+    // Compat: named routes plural untuk view yang memakai pengabdians.*
+    // (menggunakan same URLs / controller methods — hanya menambahkan nama)
+    Route::get('/pengabdian/create', [PengabdianController::class, 'create'])
+        ->name('pengabdians.create');
+
+    Route::get('/pengabdian/{pengabdian}', [PengabdianController::class, 'show'])
+        ->name('pengabdians.show');
+
+    Route::get('/pengabdian/{pengabdian}/edit', [PengabdianController::class, 'edit'])
+        ->name('pengabdians.edit');
+
+    Route::post('/pengabdian', [PengabdianController::class, 'store'])
+        ->name('pengabdians.store');
+
+    Route::put('/pengabdian/{pengabdian}', [PengabdianController::class, 'update'])
+        ->name('pengabdians.update');
+
+    Route::delete('/pengabdian/{pengabdian}', [PengabdianController::class, 'destroy'])
+        ->name('pengabdians.destroy');
+
     Route::resource('mahasiswa', MahasiswaController::class);
 
     /*

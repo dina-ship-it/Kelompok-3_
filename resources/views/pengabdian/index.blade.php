@@ -1,80 +1,65 @@
 @extends('layouts.app')
-@section('title', 'Community Service Data')
 
 @section('content')
-<div class="max-w-5xl mx-auto bg-white p-8 shadow rounded-lg">
+<div class="container">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Community Service Data</h1>
-
-        <div class="flex items-center gap-3">
-            <!-- DOWNLOAD EXCEL -->
-            <a href="{{ route('pengabdian.export') }}"
-               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-               Download Excel
-            </a>
-
-            <!-- ADD BUTTON -->
-            <a href="{{ route('pengabdian.create') }}" 
-               class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">
-               + Add Devotion
-            </a>
-        </div>
+    <div class="mb-3">
+        <!-- tetap gunakan route() untuk create karena itu tidak punya parameter -->
+        <a href="{{ route('pengabdians.create') }}" class="btn btn-primary">Tambah Pengabdian</a>
     </div>
 
-    @if($pengabdian->isEmpty())
-        <div class="p-6 bg-yellow-50 border border-yellow-200 rounded">
-            No data found.
-        </div>
-    @else
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse">
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table mb-0">
                 <thead>
-                    <tr class="bg-orange-100">
-                        <th class="border p-2 text-left">No</th>
-                        <th class="border p-2 text-left">Activity Name</th>
-                        <th class="border p-2 text-left">Type</th>
-                        <th class="border p-2 text-left">Start Date</th>
-                        <th class="border p-2 text-left">Location</th>
-                        <th class="border p-2 text-left">Description</th>
-                        <th class="border p-2 text-center">Action</th>
+                    <tr>
+                        <th>#</th>
+                        <th>Judul</th>
+                        <th>Ketua</th>
+                        <th>Status</th>
+                        <th>Tahun</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    @foreach($pengabdian as $row)
-                        <tr>
-                            <td class="border p-2 text-center">{{ $loop->iteration }}</td>
-                            <td class="border p-2">{{ $row->nama_kegiatan ?? '-' }}</td>
-                            <td class="border p-2">{{ $row->jenis_kegiatan ?? '-' }}</td>
-                            <td class="border p-2">{{ $row->tanggal_mulai ?? '-' }}</td>
-                            <td class="border p-2">{{ $row->lokasi ?? '-' }}</td>
-                            <td class="border p-2">{{ $row->deskripsi ?? '-' }}</td>
+                @forelse($items as $item)
+                    <tr>
+                        <td>{{ $item->id ?? '-' }}</td>
+                        <td>{{ \Illuminate\Support\Str::limit($item->judul ?? '-', 60) }}</td>
+                        <td>{{ $item->ketua->nama ?? '-' }}</td>
+                        <td>{{ $item->status ?? '-' }}</td>
+                        <td>{{ $item->tahun ?? '-' }}</td>
+                        <td>
+                            @if(!empty($item->id))
+                                <!-- Bangun URL manual supaya tidak bergantung pada route parameter naming -->
+                                <a href="{{ url('/pengabdian/' . $item->id) }}" class="btn btn-sm btn-info">Lihat</a>
+                                <a href="{{ url('/pengabdian/' . $item->id . '/edit') }}" class="btn btn-sm btn-warning">Edit</a>
 
-                            <td class="border p-2 text-center">
-                                {{-- Tombol Edit --}}
-                                <a href="{{ route('pengabdian.edit', $row) }}" 
-                                   class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-                                    Edit
-                                </a>
-
-                                {{-- Tombol Hapus --}}
-                                <form action="{{ route('pengabdian.destroy', $row) }}" 
-                                      method="POST" class="inline-block"
-                                      onsubmit="return confirm('Are you sure?');" style="display:inline;">
+                                <form action="{{ url('/pengabdian/' . $item->id) }}" method="POST"
+                                      style="display:inline-block"
+                                      onsubmit="return confirm('Hapus data?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
-                                        Wipe
-                                    </button>
+                                    <button class="btn btn-sm btn-danger">Hapus</button>
                                 </form>
-                            </td>
-                        </tr>
-                    @endforeach
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="text-center">Belum ada data</td></tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
-    @endif
+    </div>
 
+    <div class="mt-3">
+        {{ $items->links() }}
+    </div>
 </div>
 @endsection
