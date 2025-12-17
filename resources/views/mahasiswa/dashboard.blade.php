@@ -4,8 +4,9 @@
 <div class="container mt-4">
 
     @php
-        // kalau controller belum kirim, biar nggak error
+        // Supaya tidak error kalau controller belum kirim
         $penelitians = $penelitians ?? collect();
+        $pengabdians = $pengabdians ?? collect();
     @endphp
 
     {{-- Heading --}}
@@ -41,6 +42,7 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body text-center">
@@ -52,6 +54,7 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body text-center">
@@ -65,17 +68,15 @@
         </div>
     </div>
 
-    {{-- Penelitian yang ditugaskan --}}
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>
-            <h4 class="mb-0">Penelitian yang Ditugaskan</h4>
-            <small class="text-muted">
-                Daftar penelitian di mana Anda menjadi penanggung jawab dokumentasi.
-            </small>
-        </div>
-    </div>
+    {{-- ===================== --}}
+    {{-- PENELITIAN --}}
+    {{-- ===================== --}}
+    <h4 class="mb-2">Penelitian yang Ditugaskan</h4>
+    <small class="text-muted d-block mb-2">
+        Daftar penelitian di mana Anda menjadi penanggung jawab dokumentasi.
+    </small>
 
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 mb-4">
         @if($penelitians->isEmpty())
             <div class="card-body">
                 <div class="alert alert-info mb-0">
@@ -83,44 +84,90 @@
                 </div>
             </div>
         @else
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table mb-0 align-middle">
-                        <thead class="table-light">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Penelitian</th>
+                            <th>Ketua</th>
+                            <th>Bidang</th>
+                            <th>Tahun</th>
+                            <th>Status</th>
+                            <th class="text-end">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($penelitians as $penelitian)
                             <tr>
-                                <th style="width:50px;">No</th>
-                                <th>Judul Penelitian</th>
-                                <th style="width:180px;">Ketua Penelitian (Dosen)</th>
-                                <th style="width:150px;">Bidang</th>
-                                <th style="width:80px;">Tahun</th>
-                                <th style="width:110px;">Status</th>
-                                <th class="text-end" style="width:170px;">Aksi</th>
+                                <td>{{ $loop->iteration }}</td>
+                                <td class="fw-semibold">{{ $penelitian->judul }}</td>
+                                <td>{{ optional($penelitian->dosen)->nama ?? $penelitian->ketua_manual ?? '-' }}</td>
+                                <td>{{ $penelitian->bidang ?? '-' }}</td>
+                                <td>{{ $penelitian->tahun ?? '-' }}</td>
+                                <td>{{ $penelitian->status ?? '-' }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('mahasiswa.dokumentasi.create', $penelitian->id) }}"
+                                       class="btn btn-sm btn-primary">
+                                        Upload Dokumentasi
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($penelitians as $penelitian)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td class="fw-semibold">
-                                        {{ $penelitian->judul }}
-                                    </td>
-                                    <td>
-                                        {{ optional($penelitian->dosen)->nama ?? $penelitian->ketua_manual ?? '-' }}
-                                    </td>
-                                    <td>{{ $penelitian->bidang ?? '-' }}</td>
-                                    <td class="text-center">{{ $penelitian->tahun ?? '-' }}</td>
-                                    <td class="text-center">{{ $penelitian->status ?? '-' }}</td>
-                                    <td class="text-end">
-                                        <a href="{{ route('mahasiswa.dokumentasi.create', $penelitian->id) }}"
-                                           class="btn btn-sm btn-primary">
-                                            Upload Dokumentasi
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    {{-- ===================== --}}
+    {{-- 🔥 PENGABDIAN --}}
+    {{-- ===================== --}}
+    <h4 class="mb-2">Pengabdian yang Ditugaskan</h4>
+    <small class="text-muted d-block mb-2">
+        Daftar pengabdian di mana Anda menjadi penanggung jawab dokumentasi.
+    </small>
+
+    <div class="card shadow-sm border-0">
+        @if($pengabdians->isEmpty())
+            <div class="card-body">
+                <div class="alert alert-info mb-0">
+                    Belum ada pengabdian yang menugaskan Anda sebagai mahasiswa dokumentasi.
                 </div>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Pengabdian</th>
+                            <th>Ketua</th>
+                            <th>Bidang</th>
+                            <th>Tahun</th>
+                            <th>Status</th>
+                            <th class="text-end">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pengabdians as $pengabdian)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td class="fw-semibold">{{ $pengabdian->judul }}</td>
+                                <td>{{ $pengabdian->ketua_pengabdian }}</td>
+                                <td>{{ $pengabdian->bidang }}</td>
+                                <td>{{ $pengabdian->tahun }}</td>
+                                <td>{{ $pengabdian->status }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('mahasiswa.dokumentasi.create', $pengabdian->id) }}"
+                                       class="btn btn-sm btn-primary">
+                                        Upload Dokumentasi
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @endif
     </div>

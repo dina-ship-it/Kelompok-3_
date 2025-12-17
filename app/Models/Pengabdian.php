@@ -2,26 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pengabdian extends Model
 {
-    protected $table = 'pengabdians';
+    use HasFactory;
+
+    protected $table = 'pengabdian';
 
     protected $fillable = [
-        'ketua_dosen_id',
         'judul',
         'bidang',
-        'tanggal_mulai',
-        'tanggal_selesai',
-        'status',
+        'ketua_pengabdian',
         'anggota',
-        'mahasiswa_penanggung_jawab',
+        'mahasiswa_dokumentasi',
         'tahun',
+        'status',
     ];
-
-    public function ketua()
-    {
-        return $this->belongsTo(\App\Models\Dosen::class, 'ketua_dosen_id');
-    }
 }

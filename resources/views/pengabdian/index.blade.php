@@ -2,64 +2,66 @@
 
 @section('content')
 <div class="container">
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
 
-    <div class="mb-3">
-        <!-- tetap gunakan route() untuk create karena itu tidak punya parameter -->
-        <a href="{{ route('pengabdians.create') }}" class="btn btn-primary">Tambah Pengabdian</a>
+    <div class="d-flex justify-content-between mb-3">
+        <h4>Daftar Pengabdian</h4>
+        <a href="{{ route('pengabdians.create') }}" class="btn btn-primary">
+            + Tambah Pengabdian
+        </a>
     </div>
 
     <div class="card">
-        <div class="card-body p-0">
-            <table class="table mb-0">
+        <div class="card-body">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Judul</th>
+                        <th>Bidang</th>
                         <th>Ketua</th>
-                        <th>Status</th>
+                        <th>Anggota</th>
+                        <th>Mahasiswa</th>
                         <th>Tahun</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                @forelse($items as $item)
+                @forelse($pengabdians as $p)
                     <tr>
-                        <td>{{ $item->id ?? '-' }}</td>
-                        <td>{{ \Illuminate\Support\Str::limit($item->judul ?? '-', 60) }}</td>
-                        <td>{{ $item->ketua->nama ?? '-' }}</td>
-                        <td>{{ $item->status ?? '-' }}</td>
-                        <td>{{ $item->tahun ?? '-' }}</td>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $p->judul }}</td>
+                        <td>{{ $p->bidang }}</td>
+                        <td>{{ $p->ketua_pengabdian }}</td>
+                        <td>{{ $p->anggota }}</td>
+                        <td>{{ $p->mahasiswa_dokumentasi }}</td>
+                        <td>{{ $p->tahun }}</td>
+                        <td>{{ $p->status }}</td>
                         <td>
-                            @if(!empty($item->id))
-                                <!-- Bangun URL manual supaya tidak bergantung pada route parameter naming -->
-                                <a href="{{ url('/pengabdian/' . $item->id) }}" class="btn btn-sm btn-info">Lihat</a>
-                                <a href="{{ url('/pengabdian/' . $item->id . '/edit') }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('pengabdians.edit', $p->id) }}"
+                               class="btn btn-sm btn-warning">Ubah</a>
 
-                                <form action="{{ url('/pengabdian/' . $item->id) }}" method="POST"
-                                      style="display:inline-block"
-                                      onsubmit="return confirm('Hapus data?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Hapus</button>
-                                </form>
-                            @else
-                                <span class="text-muted">—</span>
-                            @endif
+                            <form action="{{ route('pengabdians.destroy', $p->id) }}"
+                                  method="POST" style="display:inline">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Hapus data?')">
+                                    Hapus
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center">Belum ada data</td></tr>
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            Belum ada data
+                        </td>
+                    </tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="mt-3">
-        {{ $items->links() }}
-    </div>
 </div>
 @endsection

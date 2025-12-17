@@ -25,7 +25,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// LOGIN SELECTION & base login route (so auth middleware can redirect to route('login'))
+// LOGIN SELECTION
 Route::get('/login/pilih', [AuthController::class, 'pilihLogin'])->name('login.pilih');
 Route::get('/login', [AuthController::class, 'pilihLogin'])->name('login');
 
@@ -44,7 +44,7 @@ Route::post('/login/mahasiswa', [AuthController::class, 'mahasiswaLogin'])->name
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// GOOGLE OAUTH (compat + flows)
+// GOOGLE OAUTH
 Route::get('/auth/google/redirect/{role?}', [GoogleController::class, 'redirect'])->name('login.google.redirect');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('login.google.callback');
 Route::get('/auth/google/confirm-role', [GoogleController::class, 'confirmRole'])->name('login.google.confirm_role');
@@ -59,42 +59,39 @@ Route::get('/auth/google', function (\Illuminate\Http\Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Protected routes (require authentication)
+| Protected Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
 
-    // DASHBOARD (Admin)
+    // DASHBOARD ADMIN
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     /*
     |--------------------------------------------------------------------------
     | MAHASISWA
     |--------------------------------------------------------------------------
-    | Dashboard + upload umum (sudah ada) + upload per-penelitian
     */
-    // Dashboard Mahasiswa
     Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])
         ->name('mahasiswa.dashboard');
 
-    // Upload dokumentasi umum (lama)
-    Route::post('/mahasiswa/upload', [MahasiswaController::class, 'storeUpload'])
-        ->name('mahasiswa.storeUpload');
-
-    // === Tambahan: upload dokumentasi berdasarkan penelitian ===
-    // Daftar penelitian untuk mahasiswa (kalau mau route khusus, tapi
-    // biasanya ditampilkan di dalam dashboard() langsung)
-    // Route::get('/mahasiswa/penelitian', [MahasiswaController::class, 'penelitianMahasiswa'])
-    //     ->name('mahasiswa.penelitian');
-
-    // Form upload dokumentasi untuk sebuah penelitian
-    Route::get('/mahasiswa/dokumentasi/{penelitian}/create', [MahasiswaController::class, 'createDokumentasi'])
+    // === DOKUMENTASI PENELITIAN (SUDAH ADA – JANGAN DIUBAH) ===
+    Route::get('/mahasiswa/dokumentasi/{penelitian}/create',
+        [MahasiswaController::class, 'createDokumentasi'])
         ->name('mahasiswa.dokumentasi.create');
 
-    // Simpan dokumentasi untuk sebuah penelitian
-    Route::post('/mahasiswa/dokumentasi/{penelitian}', [MahasiswaController::class, 'storeDokumentasi'])
+    Route::post('/mahasiswa/dokumentasi/{penelitian}',
+        [MahasiswaController::class, 'storeDokumentasi'])
         ->name('mahasiswa.dokumentasi.store');
 
+    // === 🔥 DOKUMENTASI PENGABDIAN (TAMBAHAN AMAN) ===
+    Route::get('/mahasiswa/dokumentasi-pengabdian/{pengabdian}/create',
+        [MahasiswaController::class, 'createDokumentasiPengabdian'])
+        ->name('mahasiswa.dokumentasi_pengabdian.create');
+
+    Route::post('/mahasiswa/dokumentasi-pengabdian/{pengabdian}',
+        [MahasiswaController::class, 'storeDokumentasiPengabdian'])
+        ->name('mahasiswa.dokumentasi_pengabdian.store');
 
     /*
     |--------------------------------------------------------------------------
@@ -106,14 +103,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('dosen.pengabdian');
     Route::get('/dosen/export', [DosenController::class, 'export'])->name('dosen.export');
 
-    // PRESTASI (link dari dashboard dosen → redirect ke TPK)
     Route::get('/dosen/prestasi', function () {
         return redirect()->route('tpk.index');
     })->name('dosen.prestasi');
 
     /*
     |--------------------------------------------------------------------------
-    | EXPORT generic
+    | EXPORT
     |--------------------------------------------------------------------------
     */
     Route::get('/penelitian/export', [PenelitianController::class, 'export'])->name('penelitian.export');
@@ -123,82 +119,61 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | CRUD resources (non-TPK)
+    | RESOURCE CRUD
     |--------------------------------------------------------------------------
     */
     Route::resource('dosen', DosenController::class);
     Route::resource('penelitian', PenelitianController::class);
     Route::resource('pengabdian', PengabdianController::class);
-
-    // Compat: named routes plural untuk view yang memakai pengabdians.*
-    // (menggunakan same URLs / controller methods — hanya menambahkan nama)
-    Route::get('/pengabdian/create', [PengabdianController::class, 'create'])
-        ->name('pengabdians.create');
-
-    Route::get('/pengabdian/{pengabdian}', [PengabdianController::class, 'show'])
-        ->name('pengabdians.show');
-
-    Route::get('/pengabdian/{pengabdian}/edit', [PengabdianController::class, 'edit'])
-        ->name('pengabdians.edit');
-
-    Route::post('/pengabdian', [PengabdianController::class, 'store'])
-        ->name('pengabdians.store');
-
-    Route::put('/pengabdian/{pengabdian}', [PengabdianController::class, 'update'])
-        ->name('pengabdians.update');
-
-    Route::delete('/pengabdian/{pengabdian}', [PengabdianController::class, 'destroy'])
-        ->name('pengabdians.destroy');
-
     Route::resource('mahasiswa', MahasiswaController::class);
 
     /*
     |--------------------------------------------------------------------------
-    | TPK (TPK / SAW) - routes (prefix /admin/tpk)
+    | COMPAT ROUTES (pengabdians.*) – BIAR VIEW AMAN
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/pengabdian', [PengabdianController::class, 'index'])->name('pengabdians.index');
+    Route::get('/pengabdian/create', [PengabdianController::class, 'create'])->name('pengabdians.create');
+    Route::post('/pengabdian', [PengabdianController::class, 'store'])->name('pengabdians.store');
+    Route::get('/pengabdian/{pengabdian}', [PengabdianController::class, 'show'])->name('pengabdians.show');
+    Route::get('/pengabdian/{pengabdian}/edit', [PengabdianController::class, 'edit'])->name('pengabdians.edit');
+    Route::put('/pengabdian/{pengabdian}', [PengabdianController::class, 'update'])->name('pengabdians.update');
+    Route::delete('/pengabdian/{pengabdian}', [PengabdianController::class, 'destroy'])->name('pengabdians.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TPK
     |--------------------------------------------------------------------------
     */
     Route::prefix('admin/tpk')->name('tpk.')->group(function () {
-
-        // main compute / overview
         Route::get('/', [TPKController::class, 'index'])->name('index');
-
-        // export CSV (controller method exportCsv)
         Route::get('/export', [TPKController::class, 'exportCsv'])->name('export');
 
-        /*
-         * Alternative (Alternatif) CRUD
-         * names: tpk.alternatif.index, create, store, edit, update, destroy
-         */
-        Route::get('/alternatif', [AlternatifController::class, 'index'])->name('alternatif.index');        // list
-        Route::get('/alternatif/create', [AlternatifController::class, 'create'])->name('alternatif.create'); // form add
-        Route::post('/alternatif', [AlternatifController::class, 'store'])->name('alternatif.store');        // save new
-        Route::get('/alternatif/{id}/edit', [AlternatifController::class, 'edit'])->name('alternatif.edit');  // edit form
-        Route::put('/alternatif/{id}', [AlternatifController::class, 'update'])->name('alternatif.update');  // save update
-        Route::delete('/alternatif/{id}', [AlternatifController::class, 'destroy'])->name('alternatif.destroy'); // delete
+        Route::get('/alternatif', [AlternatifController::class, 'index'])->name('alternatif.index');
+        Route::get('/alternatif/create', [AlternatifController::class, 'create'])->name('alternatif.create');
+        Route::post('/alternatif', [AlternatifController::class, 'store'])->name('alternatif.store');
+        Route::get('/alternatif/{id}/edit', [AlternatifController::class, 'edit'])->name('alternatif.edit');
+        Route::put('/alternatif/{id}', [AlternatifController::class, 'update'])->name('alternatif.update');
+        Route::delete('/alternatif/{id}', [AlternatifController::class, 'destroy'])->name('alternatif.destroy');
 
-        /*
-         * Criteria management (kriteria)
-         */
         Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
         Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.store');
         Route::get('/kriteria/{id}/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
         Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update');
         Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
 
-        // Hitung bobot otomatis
         Route::get('/kriteria/hitung', [KriteriaController::class, 'hitungOtomatis'])->name('kriteria.hitung');
     });
 
     /*
     |--------------------------------------------------------------------------
-    | Compatibility: Legacy 'prestasi.*' routes (redirect to TPK)
+    | LEGACY PRESTASI
     |--------------------------------------------------------------------------
     */
-    Route::get('/prestasi', function () { return redirect()->route('tpk.index'); })->name('prestasi.index');
-    Route::get('/prestasi/create', function () { return redirect()->route('tpk.alternatif.create'); })->name('prestasi.create');
-    Route::post('/prestasi', function () { return redirect()->route('tpk.alternatif.index'); })->name('prestasi.store');
-    Route::get('/prestasi/{id}/edit', function ($id) { return redirect()->route('tpk.alternatif.edit', $id); })->name('prestasi.edit');
-    Route::put('/prestasi/{id}', function ($id) { return redirect()->route('tpk.alternatif.index'); })->name('prestasi.update');
-    Route::delete('/prestasi/{id}', function ($id) { return redirect()->route('tpk.alternatif.index'); })->name('prestasi.destroy');
-
+    Route::get('/prestasi', fn () => redirect()->route('tpk.index'))->name('prestasi.index');
+    Route::get('/prestasi/create', fn () => redirect()->route('tpk.alternatif.create'))->name('prestasi.create');
+    Route::post('/prestasi', fn () => redirect()->route('tpk.alternatif.index'))->name('prestasi.store');
+    Route::get('/prestasi/{id}/edit', fn ($id) => redirect()->route('tpk.alternatif.edit', $id))->name('prestasi.edit');
+    Route::put('/prestasi/{id}', fn ($id) => redirect()->route('tpk.alternatif.index'))->name('prestasi.update');
+    Route::delete('/prestasi/{id}', fn ($id) => redirect()->route('tpk.alternatif.index'))->name('prestasi.destroy');
 });

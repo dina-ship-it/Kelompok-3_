@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
 use App\Models\Penelitian;
+use App\Models\Pengabdian;
 use App\Models\Dokumentasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +16,30 @@ class MahasiswaController extends Controller
     // =============================
     public function dashboard()
     {
-        $penelitians = Penelitian::whereNotNull('mahasiswa_dok')
+        // 🔑 Ambil data mahasiswa dari user login
+        $mahasiswa = Mahasiswa::where('user_id', Auth::id())->first();
+
+        // =============================
+        // PENELITIAN (TETAP, TIDAK DIRUSAK)
+        // =============================
+        $penelitians = Penelitian::when($mahasiswa, function ($q) use ($mahasiswa) {
+                $q->where('mahasiswa_dok', $mahasiswa->nama);
+            })
             ->orderBy('tahun', 'desc')
             ->get();
 
+        // =============================
+        // 🔥 PENGABDIAN (FIX FINAL)
+        // =============================
+        $pengabdians = Pengabdian::when($mahasiswa, function ($q) use ($mahasiswa) {
+                $q->where('mahasiswa_dokumentasi', $mahasiswa->nama);
+            })
+            ->orderBy('tahun', 'desc')
+            ->get();
+
+        // =============================
+        // COUNT DOKUMENTASI (AMAN)
+        // =============================
         $fotoCount  = Dokumentasi::where('jenis', 'foto')->count();
         $videoCount = Dokumentasi::where('jenis', 'video')->count();
         $total      = $fotoCount + $videoCount;
@@ -27,14 +48,14 @@ class MahasiswaController extends Controller
             'fotoCount',
             'videoCount',
             'total',
-            'penelitians'
+            'penelitians',
+            'pengabdians'
         ));
     }
 
     // =============================
-    // 📤 Upload Dokumentasi PER PENELITIAN
+    // 📤 Upload Dokumentasi Penelitian
     // =============================
-
     public function createDokumentasi(Penelitian $penelitian)
     {
         return view('mahasiswa.upload_dokumentasi', compact('penelitian'));
@@ -48,14 +69,12 @@ class MahasiswaController extends Controller
             'drive_link' => 'nullable|url|max:255',
         ]);
 
-        // Minimal salah satu harus ada
         if (!$request->hasFile('file') && !$request->filled('drive_link')) {
             return back()
                 ->withErrors(['file' => 'Silakan upload file atau isi link Google Drive.'])
                 ->withInput();
         }
 
-        // 🔥 AMBIL MAHASISWA DARI USER LOGIN
         $mahasiswa = Mahasiswa::where('user_id', Auth::id())->first();
 
         if (!$mahasiswa) {
@@ -64,29 +83,26 @@ class MahasiswaController extends Controller
             ]);
         }
 
-        // Upload file jika ada
         $path = null;
         if ($request->hasFile('file')) {
             $path = $request->file('file')->store('dokumentasi', 'public');
         }
 
-        // SIMPAN DOKUMENTASI (INI SUDAH BENAR FK-NYA)
         Dokumentasi::create([
             'penelitian_id' => $penelitian->id,
-            'mahasiswa_id'  => $mahasiswa->id, // ✅ INI KUNCI UTAMA
+            'mahasiswa_id'  => $mahasiswa->id,
             'jenis'         => $data['jenis'],
             'file_path'     => $path,
             'drive_link'    => $data['drive_link'] ?? null,
         ]);
 
         return redirect()->route('mahasiswa.dashboard')
-            ->with('success', '✅ Dokumentasi untuk penelitian "' . $penelitian->judul . '" berhasil diupload!');
+            ->with('success', '✅ Dokumentasi berhasil diupload!');
     }
 
     // =============================
-    // 📋 CRUD Mahasiswa
+    // 📋 CRUD Mahasiswa (TIDAK DIUBAH)
     // =============================
-
     public function index()
     {
         $mahasiswa = Mahasiswa::latest()->get();
