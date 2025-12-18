@@ -64,18 +64,27 @@ Route::get('/auth/google', function (\Illuminate\Http\Request $request) {
 */
 Route::middleware(['auth'])->group(function () {
 
-    // DASHBOARD ADMIN
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // =========================
+    // DASHBOARD (DIKUNCI ROLE)
+    // =========================
+
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('admin.dashboard');
+
+    Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])
+        ->middleware('role:mahasiswa')
+        ->name('mahasiswa.dashboard');
+
+    Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])
+        ->middleware('role:dosen')
+        ->name('dosen.dashboard');
 
     /*
     |--------------------------------------------------------------------------
     | MAHASISWA
     |--------------------------------------------------------------------------
     */
-    Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])
-        ->name('mahasiswa.dashboard');
-
-    // === DOKUMENTASI PENELITIAN (SUDAH ADA – JANGAN DIUBAH) ===
     Route::get('/mahasiswa/dokumentasi/{penelitian}/create',
         [MahasiswaController::class, 'createDokumentasi'])
         ->name('mahasiswa.dokumentasi.create');
@@ -84,7 +93,6 @@ Route::middleware(['auth'])->group(function () {
         [MahasiswaController::class, 'storeDokumentasi'])
         ->name('mahasiswa.dokumentasi.store');
 
-    // === 🔥 DOKUMENTASI PENGABDIAN (TAMBAHAN AMAN) ===
     Route::get('/mahasiswa/dokumentasi-pengabdian/{pengabdian}/create',
         [MahasiswaController::class, 'createDokumentasiPengabdian'])
         ->name('mahasiswa.dokumentasi_pengabdian.create');
@@ -98,7 +106,6 @@ Route::middleware(['auth'])->group(function () {
     | DOSEN
     |--------------------------------------------------------------------------
     */
-    Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
     Route::get('/dosen/penelitian', [PenelitianController::class, 'index'])->name('dosen.penelitian');
     Route::get('/dosen/pengabdian', [PengabdianController::class, 'index'])->name('dosen.pengabdian');
     Route::get('/dosen/export', [DosenController::class, 'export'])->name('dosen.export');
@@ -129,7 +136,7 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | COMPAT ROUTES (pengabdians.*) – BIAR VIEW AMAN
+    | COMPAT ROUTES
     |--------------------------------------------------------------------------
     */
     Route::get('/pengabdian', [PengabdianController::class, 'index'])->name('pengabdians.index');
@@ -142,10 +149,10 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | TPK
+    | TPK (ADMIN)
     |--------------------------------------------------------------------------
     */
-    Route::prefix('admin/tpk')->name('tpk.')->group(function () {
+    Route::prefix('admin/tpk')->name('tpk.')->middleware('role:admin')->group(function () {
         Route::get('/', [TPKController::class, 'index'])->name('index');
         Route::get('/export', [TPKController::class, 'exportCsv'])->name('export');
 

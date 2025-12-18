@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -33,17 +32,27 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        // coba login dengan Auth Laravel
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            // cek role user
+            // ===============================
+            // 🔥 FIX UTAMA ADMIN
+            // ===============================
             if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
+
+                // PAKSA RESET & SET ROLE ADMIN
+                $request->session()->forget('active_role');
+                $request->session()->put('active_role', 'admin');
+
+                // PAKSA REDIRECT KE ADMIN DASHBOARD
+                return redirect()->to('/admin/dashboard');
             }
 
-            // jika role bukan admin → logout
+            // JIKA BUKAN ADMIN
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return redirect()->route('login.pilih')
                 ->withErrors(['email' => 'Akun ini tidak memiliki akses admin.']);
         }
@@ -72,10 +81,18 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user->role === 'dosen') {
-                return redirect()->route('dosen.dashboard');
+
+                // SET ROLE DOSEN
+                $request->session()->forget('active_role');
+                $request->session()->put('active_role', 'dosen');
+
+                return redirect()->to('/dosen/dashboard');
             }
 
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return redirect()->route('login.pilih')
                 ->withErrors(['email' => 'Akun ini bukan akun dosen.']);
         }
@@ -104,10 +121,18 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user->role === 'mahasiswa') {
-                return redirect()->route('mahasiswa.dashboard');
+
+                // SET ROLE MAHASISWA
+                $request->session()->forget('active_role');
+                $request->session()->put('active_role', 'mahasiswa');
+
+                return redirect()->to('/mahasiswa/dashboard');
             }
 
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return redirect()->route('login.pilih')
                 ->withErrors(['email' => 'Akun ini bukan mahasiswa.']);
         }

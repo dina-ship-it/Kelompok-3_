@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class GoogleController extends Controller
 {
     /**
      * Redirect ke Google (simpan intent role di session bila ada)
-     * URL contoh: /auth/google/redirect/dosen
+     * Contoh URL:
+     * /auth/google/redirect/admin
+     * /auth/google/redirect/dosen
      */
     public function redirect(Request $request, $role = null)
     {
@@ -23,12 +24,12 @@ class GoogleController extends Controller
         }
 
         return Socialite::driver('google')
-            ->with(['prompt' => 'select_account']) // paksa pemilihan akun
+            ->with(['prompt' => 'select_account'])
             ->redirect();
     }
 
     /**
-     * Callback dari Google setelah user memilih akun
+     * Callback dari Google
      */
     public function callback(Request $request)
     {
@@ -39,50 +40,61 @@ class GoogleController extends Controller
                 ->withErrors(['google' => 'Gagal login dengan Google.']);
         }
 
-        // Ambil intent (jika ada) dan hapus dari session
+        // Ambil intent login
         $intent = $request->session()->pull('login_intent');
 
-        // Cari user berdasarkan email Google
+        // Cari user berdasarkan email
         $user = User::where('email', $googleUser->getEmail())->first();
 
+        /**
+         * =========================================
+         * JIKA USER SUDAH ADA
+         * =========================================
+         */
         if ($user) {
-            // Jika user sudah ada dan intent berbeda dari role tersimpan -> tampil konfirmasi
+
+            // Jika ada intent dan tidak sama dengan role user → konfirmasi
             if ($intent && $user->role !== $intent) {
-                // simpan data sementara (opsional) jika nanti butuh
+
                 $request->session()->put('google_temp_user', [
-                    'name'  => $googleUser->getName(),
-                    'email' => $googleUser->getEmail(),
+                    'email' => $user->email,
                 ]);
 
-                // simpan info role saat ini & intent supaya view konfirmasi bisa mengakses
                 $request->session()->put('current_role', $user->role);
                 $request->session()->put('intent_role', $intent);
 
                 return redirect()->route('login.google.confirm_role');
             }
 
-            // Role sama atau tidak ada intent: login dan redirect
+            // 🔥 FIX UTAMA: pastikan active_role selalu di-set
             Auth::login($user);
-            return $this->redirectByRole($user->role);
+            session(['active_role' => $user->role]);
+
+            return $this->redirectByActiveRole();
         }
 
-        // Jika user belum ada: buat user baru dengan role = intent (jika ada) atau 'mahasiswa'
+        /**
+         * =========================================
+         * JIKA USER BARU
+         * =========================================
+         */
         $roleToAssign = $intent ?? 'mahasiswa';
 
         $user = User::create([
             'name'     => $googleUser->getName(),
             'email'    => $googleUser->getEmail(),
-            'password' => bcrypt('googlelogin123'), // password dummy aman
+            'password' => bcrypt('googlelogin123'),
             'role'     => $roleToAssign,
         ]);
 
         Auth::login($user);
-        return $this->redirectByRole($user->role);
+        session(['active_role' => $user->role]);
+
+        return $this->redirectByActiveRole();
     }
 
     /**
-     * Tampilkan halaman konfirmasi bila role tersimpan berbeda dari intent
-     * View: resources/views/auth/confirm_role.blade.php
+     * Halaman konfirmasi role
      */
     public function confirmRole(Request $request)
     {
@@ -97,69 +109,77 @@ class GoogleController extends Controller
     }
 
     /**
-     * Handle continue action from confirm-role view.
-     * If user chooses 'intent' we set session active_role to the intent (temporary).
-     * If user chooses 'current' we set active_role to current role.
+     * Lanjutkan setelah user memilih role
      */
     public function confirmRoleContinue(Request $request)
     {
+        $temp = $request->session()->get('google_temp_user');
         $currentRole = $request->session()->get('current_role');
         $intent = $request->session()->get('intent_role');
-        $temp = $request->session()->get('google_temp_user');
 
         if (!$temp || !isset($temp['email'])) {
-            return redirect()->route('login.pilih')->withErrors(['google' => 'Data sesi tidak ditemukan. Silakan ulangi login.']);
+            return redirect()->route('login.pilih')
+                ->withErrors(['google' => 'Sesi login tidak valid.']);
         }
 
-        $email = $temp['email'];
-        $user = User::where('email', $email)->first();
-
+        $user = User::where('email', $temp['email'])->first();
         if (!$user) {
-            return redirect()->route('login.pilih')->withErrors(['google' => 'Akun tidak ditemukan di sistem.']);
+            return redirect()->route('login.pilih')
+                ->withErrors(['google' => 'Akun tidak ditemukan.']);
         }
 
-        // login user
         Auth::login($user);
 
-        // tentukan active role berdasarkan pilihan user
-        $choose = $request->input('choose'); // expected values: 'current' or 'intent'
+        $choose = $request->input('choose'); // current | intent
+
         if ($choose === 'intent' && $intent) {
             session(['active_role' => $intent]);
         } else {
             session(['active_role' => $currentRole ?? $user->role]);
         }
 
-        // bersihkan temp session yg tidak perlu
-        $request->session()->forget(['google_temp_user', 'current_role', 'intent_role', 'login_intent']);
+        // Bersihkan session sementara
+        $request->session()->forget([
+            'google_temp_user',
+            'current_role',
+            'intent_role',
+            'login_intent',
+        ]);
 
-        // redirect ke role yang aktif
-        $active = session('active_role', $user->role);
-        switch ($active) {
-            case 'admin': return redirect()->route('admin.dashboard');
-            case 'dosen': return redirect()->route('dosen.dashboard');
-            default: return redirect()->route('mahasiswa.dashboard');
-        }
+        return $this->redirectByActiveRole();
     }
 
     /**
-     * Handle cancel action: clear temp session and return to login choice.
+     * Batalkan konfirmasi
      */
     public function confirmRoleCancel(Request $request)
     {
-        $request->session()->forget(['google_temp_user', 'current_role', 'intent_role', 'login_intent']);
+        $request->session()->forget([
+            'google_temp_user',
+            'current_role',
+            'intent_role',
+            'login_intent',
+        ]);
+
         return redirect()->route('login.pilih');
     }
 
     /**
-     * Helper: redirect berdasarkan role
+     * =========================================
+     * 🔥 HELPER FINAL (ANTI SALAH ROLE)
+     * =========================================
      */
-    protected function redirectByRole($role)
+    protected function redirectByActiveRole()
     {
+        $role = session('active_role', Auth::user()->role);
+
         switch ($role) {
             case 'admin':
                 return redirect()->route('admin.dashboard');
+
             case 'dosen':
                 return redirect()->route('dosen.dashboard');
+
             default:
                 return redirect()->route('mahasiswa.dashboard');
         }

@@ -2,18 +2,25 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class Authenticate extends Middleware
+class RoleMiddleware
 {
-    /**
-     * Redirect user when not authenticated.
-     */
-    protected function redirectTo($request)
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (! $request->expectsJson()) {
-            // Ubah dari route('login') → route('login.pilih')
-            return route('login.pilih');
+        if (!auth()->check()) {
+            abort(401);
         }
+
+        // Pakai active_role jika ada (SSO)
+        $activeRole = session('active_role', auth()->user()->role);
+
+        if ($activeRole !== $role) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
+        return $next($request);
     }
 }
