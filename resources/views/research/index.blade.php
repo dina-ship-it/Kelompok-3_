@@ -4,7 +4,17 @@
 <div class="container">
     <h2>Daftar Penelitian</h2>
 
-    <a href="{{ route('research.create') }}" class="btn btn-primary mb-3">Tambah Penelitian</a>
+    {{-- ⬇️ TAMBAHAN: tombol Unduh Excel (TIDAK mengubah kode lama) --}}
+    <div class="mb-3 d-flex gap-2">
+        <a href="{{ route('research.export') }}" class="btn btn-success">
+            Unduh Excel
+        </a>
+
+        <a href="{{ route('research.create') }}" class="btn btn-primary">
+            Tambah Penelitian
+        </a>
+    </div>
+    {{-- ⬆️ AKHIR TAMBAHAN --}}
 
     <table class="table table-bordered">
         <thead>

@@ -5,102 +5,126 @@ namespace App\Exports;
 use App\Models\Penelitian;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
-
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class PenelitianExport implements FromCollection, WithHeadings, ShouldAutoSize, WithEvents
+class PenelitianExport implements
+    FromCollection,
+    WithHeadings,
+    WithStyles,
+    ShouldAutoSize,
+    WithCustomStartCell
 {
+    /* ======================
+       DATA
+       ====================== */
     public function collection()
     {
-        // Ambil kolom yang dibutuhkan
-        return Penelitian::select([
-            'id',
-            'dosen_id',
-            'mahasiswa_id',
+        return Penelitian::select(
             'judul',
             'bidang',
-            'tanggal_mulai',
-            'tanggal_selesai',
-            'status',
-            'dokumentasi',
-            'created_at',
-            'updated_at',
-        ])->get();
+            'ketua_manual',
+            'peneliti',
+            'mahasiswa_dok',
+            'tahun',
+            'status'
+        )->get();
     }
 
+    /* ======================
+       HEADER KOLOM
+       ====================== */
     public function headings(): array
     {
         return [
-            'ID',
-            'Dosen ID',
-            'Mahasiswa ID',
-            'Judul',
+            'Judul Penelitian',
             'Bidang',
-            'Tanggal Mulai',
-            'Tanggal Selesai',
-            'Status',
-            'Dokumentasi',
-            'Created At',
-            'Updated At',
+            'Ketua Penelitian',
+            'Anggota Peneliti',
+            'Mahasiswa Dokumentasi',
+            'Tahun',
+            'Status'
         ];
     }
 
-    public function registerEvents(): array
+    /* ======================
+       MULAI DARI BARIS KE-3
+       ====================== */
+    public function startCell(): string
     {
-        return [
-            AfterSheet::class => function(AfterSheet $event) {
-                $sheet = $event->sheet->getDelegate();
+        return 'A3';
+    }
 
-                // jumlah baris data + header
-                $rowCount = Penelitian::count() + 1;
-                if ($rowCount < 1) {
-                    $rowCount = 1;
-                }
+    /* ======================
+       STYLING TOTAL
+       ====================== */
+    public function styles(Worksheet $sheet)
+    {
+        $lastRow = $sheet->getHighestRow();
 
-                $highestCol = 'K'; // kalau kolom berubah sesuaikan huruf
-                $fullRange = "A1:{$highestCol}{$rowCount}";
+        /* ===== JUDUL BESAR ===== */
+        $sheet->mergeCells('A1:G1');
+        $sheet->setCellValue('A1', 'DATA PENELITIAN DOSEN');
 
-                // 1) Header style: bold, putih, center, background biru
-                $sheet->getStyle('A1:K1')->getFont()->setBold(true)
-                      ->getColor()->setARGB('FFFFFFFF'); // putih
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 14,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '1E40AF'], // Biru tua
+            ],
+        ]);
 
-                $sheet->getStyle('A1:K1')->getAlignment()
-                      ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                      ->setVertical(Alignment::VERTICAL_CENTER);
+        /* ===== HEADER TABEL ===== */
+        $sheet->getStyle('A3:G3')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '2563EB'], // Biru
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                ],
+            ],
+        ]);
 
-                $sheet->getStyle('A1:K1')->getFill()
-                      ->setFillType(Fill::FILL_SOLID)
-                      ->getStartColor()->setARGB('FF1E64D6'); // biru (ganti kode warna jika mau)
+        /* ===== ISI DATA ===== */
+        $sheet->getStyle('A4:G' . $lastRow)->applyFromArray([
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                ],
+            ],
+        ]);
 
-                // 2) Border untuk semua sel pada range
-                $sheet->getStyle($fullRange)->getBorders()->getAllBorders()
-                      ->setBorderStyle(Border::BORDER_THIN);
+        // Tengah untuk Tahun & Status
+        $sheet->getStyle('F4:F' . $lastRow)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                // 3) Wrap text untuk semua sel (berguna untuk deskripsi/dokumentasi)
-                $sheet->getStyle($fullRange)->getAlignment()->setWrapText(true);
-
-                // 4) Baris header lebih tinggi
-                $sheet->getRowDimension(1)->setRowHeight(26);
-
-                // 5) Freeze header (baris 1)
-                $sheet->freezePane('A2');
-
-                // 6) Jika perlu, sesuaikan format tanggal (opsional)
-                // contoh: kolom F (Tanggal Mulai) & G (Tanggal Selesai) diatur format yyyy-mm-dd
-                $sheet->getStyle('F2:G' . $rowCount)
-                      ->getNumberFormat()
-                      ->setFormatCode('yyyy-mm-dd');
-
-                // 7) Pastikan kolom terakhir tidak terlalu sempit (opsional padding)
-                foreach (range('A','K') as $col) {
-                    $sheet->getColumnDimension($col)->setAutoSize(true);
-                }
-            },
-        ];
+        $sheet->getStyle('G4:G' . $lastRow)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     }
 }

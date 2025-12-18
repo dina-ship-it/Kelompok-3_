@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Pengabdian;
 use Illuminate\Http\Request;
 
+/* ⬇️ TAMBAHAN UNTUK EXPORT EXCEL (TIDAK MENGUBAH KODE LAMA) */
+use App\Exports\PengabdianExport;
+use Maatwebsite\Excel\Facades\Excel;
+/* ⬆️ AKHIR TAMBAHAN */
+
 class PengabdianController extends Controller
 {
     public function index()
@@ -65,5 +70,16 @@ class PengabdianController extends Controller
 
         return redirect()->route('pengabdians.index')
             ->with('success', 'Data pengabdian berhasil dihapus');
+    }
+
+    /* =====================================================
+       ⬇️ TAMBAHAN: EXPORT EXCEL (FINAL & AMAN)
+       ===================================================== */
+    public function export()
+    {
+        return Excel::download(
+            new PengabdianExport,
+            'data_pengabdian.xlsx'
+        );
     }
 }

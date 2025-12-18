@@ -8,6 +8,12 @@ use App\Models\Dosen;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/* =======================
+   TAMBAHAN UNTUK EXCEL
+   ======================= */
+use App\Exports\PenelitianExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class PenelitianController extends Controller
 {
     public function index(Request $request)
@@ -24,28 +30,25 @@ class PenelitianController extends Controller
 
     public function store(Request $request)
     {
-        // validation
         $data = $request->validate([
-            'dosen_id'       => 'nullable|integer|exists:dosens,id',
-            'ketua_manual'   => 'nullable|string|max:255',
-            'judul'          => 'required|string|max:255',
-            'bidang'         => 'nullable|string|max:255',
-            'tanggal_mulai'  => 'nullable|date',
-            'tanggal_selesai'=> 'nullable|date|after_or_equal:tanggal_mulai',
-            'status'         => 'nullable|string|max:50',
-            'peneliti'       => 'nullable|string',
-            'mahasiswa_dok'  => 'nullable|string|max:255',
-            'tahun'          => 'nullable|integer',
+            'dosen_id'        => 'nullable|integer|exists:dosens,id',
+            'ketua_manual'    => 'nullable|string|max:255',
+            'judul'           => 'required|string|max:255',
+            'bidang'          => 'nullable|string|max:255',
+            'tanggal_mulai'   => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status'          => 'nullable|string|max:50',
+            'peneliti'        => 'nullable|string',
+            'mahasiswa_dok'   => 'nullable|string|max:255',
+            'tahun'           => 'nullable|integer',
         ]);
 
-        // must choose either lecturer or manual name
         if (empty($data['dosen_id']) && empty($data['ketua_manual'])) {
             return back()
                 ->withErrors(['ketua_manual' => 'Please select a lecturer or type the principal investigator name.'])
                 ->withInput();
         }
 
-        // if manual is filled, ignore dosen_id; if using dosen, clear manual
         if (!empty($data['ketua_manual'])) {
             $data['dosen_id'] = null;
         } else {
@@ -54,7 +57,8 @@ class PenelitianController extends Controller
 
         Penelitian::create($data);
 
-        return redirect()->route('penelitian.index')->with('success', 'Research has been added successfully.');
+        return redirect()->route('penelitian.index')
+            ->with('success', 'Research has been added successfully.');
     }
 
     public function show(Penelitian $penelitian)
@@ -71,16 +75,16 @@ class PenelitianController extends Controller
     public function update(Request $request, Penelitian $penelitian)
     {
         $data = $request->validate([
-            'dosen_id'       => 'nullable|integer|exists:dosens,id',
-            'ketua_manual'   => 'nullable|string|max:255',
-            'judul'          => 'required|string|max:255',
-            'bidang'         => 'nullable|string|max:255',
-            'tanggal_mulai'  => 'nullable|date',
-            'tanggal_selesai'=> 'nullable|date|after_or_equal:tanggal_mulai',
-            'status'         => 'nullable|string|max:50',
-            'peneliti'       => 'nullable|string',
-            'mahasiswa_dok'  => 'nullable|string|max:255',
-            'tahun'          => 'nullable|integer',
+            'dosen_id'        => 'nullable|integer|exists:dosens,id',
+            'ketua_manual'    => 'nullable|string|max:255',
+            'judul'           => 'required|string|max:255',
+            'bidang'          => 'nullable|string|max:255',
+            'tanggal_mulai'   => 'nullable|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'status'          => 'nullable|string|max:50',
+            'peneliti'        => 'nullable|string',
+            'mahasiswa_dok'   => 'nullable|string|max:255',
+            'tahun'           => 'nullable|integer',
         ]);
 
         if (empty($data['dosen_id']) && empty($data['ketua_manual'])) {
@@ -97,15 +101,31 @@ class PenelitianController extends Controller
 
         $penelitian->update($data);
 
-        return redirect()->route('penelitian.index')->with('success', 'Research has been updated successfully.');
+        return redirect()->route('penelitian.index')
+            ->with('success', 'Research has been updated successfully.');
     }
 
     public function destroy(Penelitian $penelitian)
     {
         $penelitian->delete();
-        return redirect()->route('penelitian.index')->with('success', 'Research has been deleted.');
+        return redirect()->route('penelitian.index')
+            ->with('success', 'Research has been deleted.');
     }
 
+    /* =====================================================
+       EXPORT EXCEL (TAMBAHAN — TIDAK MERUSAK CSV)
+       ===================================================== */
+    public function exportExcel()
+    {
+        return Excel::download(
+            new PenelitianExport,
+            'data_penelitian.xlsx'
+        );
+    }
+
+    /* =====================================================
+       EXPORT CSV (KODE LAMA — TIDAK DIUBAH)
+       ===================================================== */
     public function export(Request $request)
     {
         return $this->exportCsv();
@@ -141,7 +161,7 @@ class PenelitianController extends Controller
         };
 
         return response()->stream($callback, 200, [
-            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Type'        => 'text/csv; charset=utf-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }

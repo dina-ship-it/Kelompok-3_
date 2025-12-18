@@ -40,18 +40,28 @@
         }
     </style>
 
-    {{-- Judul halaman + tombol tambah --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h3 class="mb-0">Daftar Penelitian</h3>
-            <small class="text-muted">
-                Ringkasan data penelitian beserta ketua, anggota, dan mahasiswa dokumentasi.
-            </small>
-        </div>
+   {{-- Judul halaman + tombol --}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Daftar Penelitian</h3>
+        <small class="text-muted">
+            Ringkasan data penelitian beserta ketua, anggota, dan mahasiswa dokumentasi.
+        </small>
+    </div>
+
+    <div class="d-flex gap-2">
+        {{-- Tombol Unduh Excel (TAMBAHAN) --}}
+        <a href="{{ route('penelitian.export') }}" class="btn btn-success">
+            Unduh Excel
+        </a>
+
+        {{-- Tombol lama (tidak diubah) --}}
         <a href="{{ route('penelitian.create') }}" class="btn btn-primary">
             + Tambah Penelitian
         </a>
     </div>
+</div>
+
 
     {{-- Pesan sukses --}}
     @if(session('success'))

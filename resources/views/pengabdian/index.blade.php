@@ -3,11 +3,21 @@
 @section('content')
 <div class="container">
 
-    <div class="d-flex justify-content-between mb-3">
+    {{-- HEADER + TOMBOL --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Daftar Pengabdian</h4>
-        <a href="{{ route('pengabdians.create') }}" class="btn btn-primary">
-            + Tambah Pengabdian
-        </a>
+
+        <div class="d-flex gap-2">
+            {{-- ⬇️ TOMBOL UNDUH EXCEL (TAMBAHAN) --}}
+            <a href="{{ route('pengabdian.export') }}" class="btn btn-success">
+                Unduh Excel
+            </a>
+
+            {{-- TOMBOL LAMA (TIDAK DIUBAH) --}}
+            <a href="{{ route('pengabdians.create') }}" class="btn btn-primary">
+                + Tambah Pengabdian
+            </a>
+        </div>
     </div>
 
     <div class="card">
@@ -43,7 +53,8 @@
 
                             <form action="{{ route('pengabdians.destroy', $p->id) }}"
                                   method="POST" style="display:inline">
-                                @csrf @method('DELETE')
+                                @csrf
+                                @method('DELETE')
                                 <button class="btn btn-sm btn-danger"
                                     onclick="return confirm('Hapus data?')">
                                     Hapus
