@@ -8,26 +8,41 @@ use Illuminate\Http\Request;
 class KriteriaController extends Controller
 {
     /**
-     * Hitung bobot kriteria secara otomatis
+     * TAMPILKAN HALAMAN + KIRIM DATA KE MODAL
      */
-    public function hitungOtomatis()
+    public function index()
     {
+        // WAJIB: kirim semua kriteria ke view
         $kriterias = Kriteria::all();
 
-        // Contoh logika sederhana (silakan sesuaikan AHP / bobotmu)
-        $jumlah = $kriterias->count();
+        return view('admin.tpk.kriteria.index', compact('kriterias'));
+    }
 
-        if ($jumlah == 0) {
-            return redirect()->back()->with('error', 'Data kriteria masih kosong');
+    /**
+     * SIMPAN BOBOT DARI MODAL
+     */
+    public function updateBobot(Request $request)
+    {
+        // CEGAH ERROR kalau form kosong
+        if (!$request->has('bobot')) {
+            return back();
         }
 
-        foreach ($kriterias as $kriteria) {
-            $kriteria->bobot = 1 / $jumlah; // contoh pembagian rata
-            $kriteria->save();
+        // HITUNG TOTAL BOBOT
+        $total = array_sum($request->bobot);
+
+        // VALIDASI: total HARUS 1.0
+        if (round($total, 3) != 1.000) {
+            return back()->with('error', 'Total bobot harus 1.0');
         }
 
-        return redirect()
-            ->route('tpk.kriteria.index')
-            ->with('success', 'Bobot kriteria berhasil dihitung otomatis');
+        // SIMPAN KE DATABASE
+        foreach ($request->bobot as $id => $nilai) {
+            Kriteria::where('id', $id)->update([
+                'bobot' => $nilai
+            ]);
+        }
+
+        return back()->with('success', 'Bobot berhasil diperbarui');
     }
 }

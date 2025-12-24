@@ -147,15 +147,23 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/pengabdian/{pengabdian}', [PengabdianController::class, 'update'])->name('pengabdians.update');
     Route::delete('/pengabdian/{pengabdian}', [PengabdianController::class, 'destroy'])->name('pengabdians.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | TPK (ADMIN)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('admin/tpk')->name('tpk.')->middleware('role:admin')->group(function () {
+   /*
+|--------------------------------------------------------------------------
+| TPK (ADMIN)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin/tpk')
+    ->name('tpk.')
+    ->group(function () {
+
+        // DASHBOARD TPK
         Route::get('/', [TPKController::class, 'index'])->name('index');
         Route::get('/export', [TPKController::class, 'exportCsv'])->name('export');
 
+        // ======================
+        // ALTERNATIF
+        // ======================
         Route::get('/alternatif', [AlternatifController::class, 'index'])->name('alternatif.index');
         Route::get('/alternatif/create', [AlternatifController::class, 'create'])->name('alternatif.create');
         Route::post('/alternatif', [AlternatifController::class, 'store'])->name('alternatif.store');
@@ -163,14 +171,31 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/alternatif/{id}', [AlternatifController::class, 'update'])->name('alternatif.update');
         Route::delete('/alternatif/{id}', [AlternatifController::class, 'destroy'])->name('alternatif.destroy');
 
-        Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
-        Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.store');
-        Route::get('/kriteria/{id}/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
-        Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update');
-        Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
+        // ======================
+        // KRITERIA (INI YANG KAMU BUTUH)
+        // ======================
+        Route::get('/kriteria', [KriteriaController::class, 'index'])
+            ->name('kriteria.index');
 
-        Route::get('/kriteria/hitung', [KriteriaController::class, 'hitungOtomatis'])->name('kriteria.hitung');
+        Route::post('/kriteria/update-bobot', [KriteriaController::class, 'updateBobot'])
+            ->name('kriteria.updateBobot');
+
+        Route::post('/kriteria', [KriteriaController::class, 'store'])
+            ->name('kriteria.store');
+
+        Route::get('/kriteria/{id}/edit', [KriteriaController::class, 'edit'])
+            ->name('kriteria.edit');
+
+        Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])
+            ->name('kriteria.update');
+
+        Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])
+            ->name('kriteria.destroy');
+
+        Route::get('/kriteria/hitung', [KriteriaController::class, 'hitungOtomatis'])
+            ->name('kriteria.hitung');
     });
+
 
     /*
     |--------------------------------------------------------------------------
